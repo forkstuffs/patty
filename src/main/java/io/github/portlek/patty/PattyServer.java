@@ -59,6 +59,9 @@ public final class PattyServer {
     private BiConsumer<PattyServer, Session> whenSessionRemoved = (pattyServer, session) -> {
     };
 
+    @NotNull
+    private Protocol protocol = Protocol.EMPTY;
+    
     public static PattyServer tcp(@NotNull final String host, final int port) {
         return new PattyServer(host, port);
     }
@@ -89,6 +92,11 @@ public final class PattyServer {
 
     public PattyServer whenSessionRemoved(@NotNull final BiConsumer<PattyServer, Session> whenSessionRemoved) {
         this.whenSessionRemoved = whenSessionRemoved;
+        return this;
+    }
+
+    public PattyServer protocol(@NotNull final Protocol protocol) {
+        this.protocol = protocol;
         return this;
     }
 
