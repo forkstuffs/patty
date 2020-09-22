@@ -4,8 +4,6 @@
 [![Build Status](https://travis-ci.com/portlek/patty.svg?branch=master)](https://travis-ci.com/portlek/patty)
 ![Maven Central](https://img.shields.io/maven-central/v/io.github.portlek/patty?label=version)
 ## How to use
-### Main dependency(Required). 
-**You have to add at least 1 dependency which is `Optional Required`**
 ```xml
 <dependency>
     <groupId>io.github.portlek</groupId>
