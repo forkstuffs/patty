@@ -48,7 +48,7 @@ public final class PattyServer {
     };
 
     @NotNull
-    private Consumer<PattyServer> whenSessionClosed = pattyServer -> {
+    private Consumer<PattyServer> whenServerClosed = pattyServer -> {
     };
 
     @NotNull
@@ -77,8 +77,8 @@ public final class PattyServer {
         return this;
     }
 
-    public PattyServer whenServerClosed(@NotNull final Consumer<PattyServer> whenSessionClosed) {
-        this.whenSessionClosed = whenSessionClosed;
+    public PattyServer whenServerClosed(@NotNull final Consumer<PattyServer> whenServerClosed) {
+        this.whenServerClosed = whenServerClosed;
         return this;
     }
 

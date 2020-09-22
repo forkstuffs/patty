@@ -35,13 +35,13 @@ public final class TestRunner {
             .whenServerClosing(pattyServer -> {
 
             })
-            .whenSessionAdded(pattyServer -> {
+            .whenServerClosed(pattyServer -> {
 
             })
-            .whenSessionClosed(pattyServer -> {
+            .whenSessionAdded((pattyServer, session) -> {
 
             })
-            .whenSessionRemoved(pattyServer -> {
+            .whenSessionRemoved((pattyServer, session) -> {
 
             })
             .bind();
