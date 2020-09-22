@@ -25,6 +25,7 @@
 package io.github.portlek.patty
 
 import io.github.portlek.patty.util.PoolSpec
+import io.netty.channel.Channel
 import io.netty.channel.epoll.Epoll
 import io.netty.channel.epoll.EpollDatagramChannel
 import io.netty.channel.epoll.EpollEventLoopGroup
@@ -37,7 +38,8 @@ import java.util.function.Consumer
 
 class PattyServer(
   private val host: String,
-  private val port: Int
+  private val port: Int,
+  private val channelClass: Class<out Channel>
 ) {
   private val eventLoop = if (Epoll.isAvailable()) {
     EpollEventLoopGroup(PoolSpec.UNCAUGHT_FACTORY)
@@ -76,22 +78,23 @@ class PattyServer(
   }
 
   fun bind(wait: Boolean = true) {
+
   }
 
   companion object {
-    private val udpChannel = if (Epoll.isAvailable()) {
-      EpollDatagramChannel::class.java
-    } else {
-      NioDatagramChannel::class.java
-    }
     private val tcpChannel = if (Epoll.isAvailable()) {
       EpollServerSocketChannel::class.java
     } else {
       NioServerSocketChannel::class.java
     }
+    private val udpChannel = if (Epoll.isAvailable()) {
+      EpollDatagramChannel::class.java
+    } else {
+      NioDatagramChannel::class.java
+    }
 
-    fun tcp(host: String, port: Int) = PattyServer(host, port)
+    fun tcp(host: String, port: Int) = PattyServer(host, port, tcpChannel)
 
-    fun udp(host: String, port: Int) = PattyServer(host, port)
+    fun udp(host: String, port: Int) = PattyServer(host, port, udpChannel)
   }
 }
