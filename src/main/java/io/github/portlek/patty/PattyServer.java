@@ -25,6 +25,8 @@
 
 package io.github.portlek.patty;
 
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -37,12 +39,57 @@ public final class PattyServer {
 
     private final int port;
 
+    @NotNull
+    private Consumer<PattyServer> whenServerBound = pattyServer -> {
+    };
+
+    @NotNull
+    private Consumer<PattyServer> whenServerClosing = pattyServer -> {
+    };
+
+    @NotNull
+    private Consumer<PattyServer> whenSessionClosed = pattyServer -> {
+    };
+
+    @NotNull
+    private BiConsumer<PattyServer, Session> whenSessionAdded = (pattyServer, session) -> {
+    };
+
+    @NotNull
+    private BiConsumer<PattyServer, Session> whenSessionRemoved = (pattyServer, session) -> {
+    };
+
     public static PattyServer tcp(@NotNull final String host, final int port) {
         return new PattyServer(host, port);
     }
 
     public static PattyServer udp(@NotNull final String host, final int port) {
         return new PattyServer(host, port);
+    }
+
+    public PattyServer whenServerBound(@NotNull final Consumer<PattyServer> whenServerBound) {
+        this.whenServerBound = whenServerBound;
+        return this;
+    }
+
+    public PattyServer whenServerClosing(@NotNull final Consumer<PattyServer> whenServerClosing) {
+        this.whenServerClosing = whenServerClosing;
+        return this;
+    }
+
+    public PattyServer whenServerClosed(@NotNull final Consumer<PattyServer> whenSessionClosed) {
+        this.whenSessionClosed = whenSessionClosed;
+        return this;
+    }
+
+    public PattyServer whenSessionAdded(@NotNull final BiConsumer<PattyServer, Session> whenSessionAdded) {
+        this.whenSessionAdded = whenSessionAdded;
+        return this;
+    }
+
+    public PattyServer whenSessionRemoved(@NotNull final BiConsumer<PattyServer, Session> whenSessionRemoved) {
+        this.whenSessionRemoved = whenSessionRemoved;
+        return this;
     }
 
     public void bind() {

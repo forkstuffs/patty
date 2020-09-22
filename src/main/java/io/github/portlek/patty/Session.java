@@ -25,26 +25,6 @@
 
 package io.github.portlek.patty;
 
-public final class TestRunner {
-
-    public static void main(final String[] args) {
-        PattyServer.tcp("127.0.0.1", 25565)
-            .whenServerBound(pattyServer -> {
-
-            })
-            .whenServerClosing(pattyServer -> {
-
-            })
-            .whenSessionAdded(pattyServer -> {
-
-            })
-            .whenSessionClosed(pattyServer -> {
-
-            })
-            .whenSessionRemoved(pattyServer -> {
-
-            })
-            .bind();
-    }
+public interface Session {
 
 }
