@@ -24,12 +24,12 @@
  */
 package io.github.portlek.patty
 
+import io.github.portlek.patty.tcp.TcpInitializer
 import io.github.portlek.patty.util.PoolSpec
 import io.netty.bootstrap.Bootstrap
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel.Channel
 import io.netty.channel.ChannelFutureListener
-import io.netty.channel.ChannelInitializer
 import io.netty.channel.ServerChannel
 import io.netty.channel.epoll.Epoll
 import io.netty.channel.epoll.EpollDatagramChannel
@@ -88,11 +88,7 @@ class PattyServer(
     val future = if (channelClass is SocketChannel) {
       ServerBootstrap()
         .channel(channelClass as Class<out ServerChannel>)
-        .childHandler(object : ChannelInitializer<ServerChannel>() {
-          override fun initChannel(channel: ServerChannel) {
-
-          }
-        })
+        .childHandler(TcpInitializer(this))
         .bind()
     } else {
       Bootstrap()
