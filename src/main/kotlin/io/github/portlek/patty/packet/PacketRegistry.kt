@@ -25,7 +25,6 @@
 
 package io.github.portlek.patty.packet
 
-import io.github.portlek.patty.ConnectionState
 import java.lang.reflect.Constructor
 import java.util.*
 

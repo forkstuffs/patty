@@ -23,7 +23,7 @@
  *
  */
 
-package io.github.portlek.patty.packet;
+package io.github.portlek.patty.packet
 
 enum class PacketBound {
   CLIENT, SERVER;
