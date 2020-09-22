@@ -10,6 +10,9 @@
     </parent>
     <artifactId>patty</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <name>patty</name>
+    <description>A project that allows you to make unique Netty projects.</description>
+    <url>https://github.com/portlek/patty</url>
 
     <scm>
         <connection>scm:git:git://github.com/portlek/patty.git</connection>
