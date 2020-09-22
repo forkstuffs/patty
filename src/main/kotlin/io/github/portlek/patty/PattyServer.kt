@@ -25,12 +25,18 @@
 package io.github.portlek.patty
 
 import io.github.portlek.patty.util.PoolSpec
+import io.netty.bootstrap.Bootstrap
+import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel.Channel
+import io.netty.channel.ChannelFutureListener
+import io.netty.channel.ChannelInitializer
+import io.netty.channel.ServerChannel
 import io.netty.channel.epoll.Epoll
 import io.netty.channel.epoll.EpollDatagramChannel
 import io.netty.channel.epoll.EpollEventLoopGroup
 import io.netty.channel.epoll.EpollServerSocketChannel
 import io.netty.channel.nio.NioEventLoopGroup
+import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioDatagramChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import java.util.function.BiConsumer
@@ -51,6 +57,7 @@ class PattyServer(
   private var whenServerClosed = Consumer<PattyServer> { }
   private var whenSessionAdded = BiConsumer<PattyServer, Session> { _, _ -> }
   private var whenSessionRemoved = BiConsumer<PattyServer, Session> { _, _ -> }
+  private var channel: Channel? = null
 
   fun whenServerBound(whenServerBound: Consumer<PattyServer>): PattyServer {
     this.whenServerBound = whenServerBound
@@ -78,7 +85,28 @@ class PattyServer(
   }
 
   fun bind(wait: Boolean = true) {
+    val future = if (channelClass is SocketChannel) {
+      ServerBootstrap()
+        .channel(channelClass as Class<out ServerChannel>)
+        .childHandler(object : ChannelInitializer<ServerChannel>() {
+          override fun initChannel(channel: ServerChannel) {
 
+          }
+        })
+        .bind()
+    } else {
+      Bootstrap()
+        .bind()
+    }
+    if (wait) {
+      channel = future.sync().channel()
+    } else {
+      future.addListener(ChannelFutureListener {
+        if (it.isSuccess) {
+          channel = it.channel()
+        }
+      })
+    }
   }
 
   companion object {
