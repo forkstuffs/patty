@@ -23,14 +23,17 @@
  *
  */
 
-package io.github.portlek.patty;
+package io.github.portlek.patty.packet;
 
-public interface Protocol {
+enum class PacketBound {
+  CLIENT, SERVER;
 
-    Protocol EMPTY = new Protocol.EmptyProtocol();
-
-    class EmptyProtocol implements Protocol {
-
-    }
-
+  companion object {
+    fun of(cls: Class<out Packet>) =
+      if (cls.superclass == PacketIn::class.java) {
+        SERVER
+      } else {
+        CLIENT
+      }
+  }
 }

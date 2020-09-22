@@ -23,8 +23,12 @@
  *
  */
 
-package io.github.portlek.patty;
+package io.github.portlek.patty.packet
 
-public interface Session {
+import io.github.portlek.patty.util.PacketBuffer
 
+abstract class PacketOut(cls: Class<out Packet>) : Packet(cls) {
+  abstract fun write(buffer: PacketBuffer)
+
+  abstract fun size(): Int
 }

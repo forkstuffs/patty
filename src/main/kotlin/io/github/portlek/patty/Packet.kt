@@ -22,31 +22,11 @@
  * SOFTWARE.
  *
  */
+package io.github.portlek.patty
 
-package io.github.portlek.patty;
-
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
-
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class PattyClient {
-
-    @NotNull
-    private final String host;
-
-    private final int port;
-
-    public static PattyClient tcp(@NotNull final String host, final int port) {
-        return new PattyClient(host, port);
-    }
-
-    public static PattyClient udp(@NotNull final String host, final int port) {
-        return new PattyClient(host, port);
-    }
-
-    public void connect() {
-
-    }
-
+interface Packet {
+  class EmptyPacket : Packet
+  companion object {
+    val EMPTY: Packet = EmptyPacket()
+  }
 }

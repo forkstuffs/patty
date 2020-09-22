@@ -22,29 +22,36 @@
  * SOFTWARE.
  *
  */
+package io.github.portlek.patty
 
-package io.github.portlek.patty;
+interface PacketEncrypted {
+  fun getDecryptOutputSize(length: Int): Int
 
-public final class TestRunner {
+  fun getEncryptOutputSize(length: Int): Int
 
-    public static void main(final String[] args) {
-        PattyServer.tcp("127.0.0.1", 25565)
-            .whenServerBound(pattyServer -> {
+  fun decrypt(input: ByteArray, inputOffset: Int, inputLength: Int, output: ByteArray, outputOffset: Int): Int
 
-            })
-            .whenServerClosing(pattyServer -> {
+  fun encrypt(input: ByteArray, inputOffset: Int, inputLength: Int, output: ByteArray, outputOffset: Int): Int
 
-            })
-            .whenServerClosed(pattyServer -> {
-
-            })
-            .whenSessionAdded((pattyServer, session) -> {
-
-            })
-            .whenSessionRemoved((pattyServer, session) -> {
-
-            })
-            .bind();
+  class EmptyPacketEncrypted : PacketEncrypted {
+    override fun getDecryptOutputSize(length: Int): Int {
+      return 0
     }
 
+    override fun getEncryptOutputSize(length: Int): Int {
+      return 0
+    }
+
+    override fun decrypt(input: ByteArray, inputOffset: Int, inputLength: Int, output: ByteArray, outputOffset: Int): Int {
+      return 0
+    }
+
+    override fun encrypt(input: ByteArray, inputOffset: Int, inputLength: Int, output: ByteArray, outputOffset: Int): Int {
+      return 0
+    }
+  }
+
+  companion object {
+    val EMPTY = EmptyPacketEncrypted()
+  }
 }
