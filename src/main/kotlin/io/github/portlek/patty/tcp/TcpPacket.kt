@@ -28,6 +28,6 @@ package io.github.portlek.patty.tcp
 import io.github.portlek.patty.Packet
 import io.netty.buffer.ByteBuf
 
-abstract class TcpPacket(cls: Class<out TcpPacket>) : Packet<ByteBuf>(cls) {
+abstract class TcpPacket(cls: Class<out TcpPacket>) : Packet<ByteBuf>() {
   val id = TcpPacketRegistry.getPacketId(TcpPacketRegistry.getPacketId(cls))
 }

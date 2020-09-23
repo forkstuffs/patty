@@ -30,5 +30,10 @@ import io.netty.buffer.ByteBuf
 
 class TestProtocolListener : TcpProtocolListener {
   override fun onPacketReceived(packet: Packet<ByteBuf>) {
+    TODO("Not yet implemented")
+  }
+
+  override fun onPacketSent(packet: Packet<ByteBuf>) {
+    TODO("Not yet implemented")
   }
 }

@@ -25,15 +25,15 @@
 
 package io.github.portlek.patty.packets
 
+import io.github.portlek.patty.Connection
+import io.github.portlek.patty.TestProtocolListener
 import io.github.portlek.patty.tcp.TcpPacket
 import io.netty.buffer.ByteBuf
 
-class TestPacket : TcpPacket(TestPacket::class.java) {
-  override fun read(packet: ByteBuf) {
-    TODO("Not yet implemented")
+class TestPacket: TcpPacket(TestPacket::class.java) {
+  override fun read(buffer: ByteBuf, connection: Connection<ByteBuf>) {
   }
 
-  override fun write(buffer: ByteBuf) {
-    TODO("Not yet implemented")
+  override fun write(buffer: ByteBuf, connection: Connection<ByteBuf>) {
   }
 }

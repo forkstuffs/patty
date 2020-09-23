@@ -23,14 +23,20 @@
  *
  */
 
-package io.github.portlek.patty.tcp
+package io.github.portlek.patty.udp
 
-import io.github.portlek.patty.*
-import io.netty.buffer.ByteBuf
+import io.github.portlek.patty.Connection
+import io.github.portlek.patty.ConnectionBound
+import io.github.portlek.patty.DisconnectReason
+import io.github.portlek.patty.PattyServer
+import io.netty.channel.ChannelHandlerContext
+import io.netty.channel.socket.DatagramPacket
 
-class TcpProtocol(
-  override val header: PacketHeader,
-  override val encryptor: PacketEncryptor? = null,
-  override val sizer: PacketSizer,
-  override val listener: ProtocolListener<ByteBuf>? = null
-) : Protocol<ByteBuf>
+class UdpConnection(
+  server: PattyServer<DatagramPacket>,
+  ctx: ChannelHandlerContext,
+  bound: ConnectionBound
+) : Connection<DatagramPacket>(server, ctx, bound) {
+  override fun disconnect(reason: DisconnectReason) {
+  }
+}

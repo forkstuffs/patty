@@ -29,4 +29,4 @@ import io.github.portlek.patty.Packet
 import io.github.portlek.patty.ProtocolListener
 import io.netty.buffer.ByteBuf
 
-interface TcpProtocolListener : ProtocolListener<ByteBuf, Packet<ByteBuf>>
+interface TcpProtocolListener : ProtocolListener<ByteBuf>

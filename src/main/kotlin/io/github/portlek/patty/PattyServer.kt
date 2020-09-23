@@ -49,7 +49,7 @@ class PattyServer<O : ReferenceCounted> private constructor(
   private val ip: String,
   private val port: Int,
   private val channelClass: Class<out Channel>,
-  private val protocol: Protocol<O>
+  val protocol: Protocol<O>
 ) {
   private val eventLoop = if (Epoll.isAvailable()) {
     EpollEventLoopGroup(PoolSpec.UNCAUGHT_FACTORY)
@@ -97,7 +97,7 @@ class PattyServer<O : ReferenceCounted> private constructor(
     }
 
     fun tcp(ip: String, port: Int, packetHeader: PacketHeader, packetEncryptor: PacketEncryptor? = null,
-            packetSizer: PacketSizer, protocolListener: ProtocolListener<ByteBuf, Packet<ByteBuf>>? = null) =
+            packetSizer: PacketSizer, protocolListener: ProtocolListener<ByteBuf>? = null) =
       PattyServer(ip, port, tcpChannel, TcpProtocol(packetHeader, packetEncryptor, packetSizer, protocolListener))
 
     fun tcp(ip: String, port: Int, protocol: TcpProtocol) = PattyServer(ip, port, tcpChannel, protocol)

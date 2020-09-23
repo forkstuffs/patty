@@ -51,7 +51,7 @@ class TcpServerInitializer(
     channel.pipeline()
       .addLast("encryptor", TcpPacketEncryptor(protocol))
       .addLast("sizer", TcpPacketSizer(protocol))
-      .addLast("codec", TcpPacketCodec(protocol, ConnectionBound.SERVER))
+      .addLast("codec", TcpPacketCodec(server, protocol, ConnectionBound.SERVER))
       .addLast("manager", TcpPacketManager(protocol))
   }
 }

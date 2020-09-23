@@ -25,43 +25,29 @@
 
 package io.github.portlek.patty.tcp
 
-import io.github.portlek.patty.ConnectionBound
-import io.github.portlek.patty.ConnectionState
-import io.github.portlek.patty.DisconnectReason
-import io.netty.channel.ChannelFuture
-import io.netty.channel.ChannelFutureListener
+import io.github.portlek.patty.*
+import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 import java.net.SocketAddress
 
 class TcpConnection(
+  server: PattyServer<ByteBuf>,
   ctx: ChannelHandlerContext,
-  val bound: ConnectionBound
-) {
+  bound: ConnectionBound
+) : Connection<ByteBuf>(server, ctx, bound) {
   companion object {
     private val CONNECTIONS = HashMap<SocketAddress, TcpConnection>()
 
-    fun get(ctx: ChannelHandlerContext, bound: ConnectionBound) =
-      CONNECTIONS.getOrElse(ctx.channel().remoteAddress()) {
-        TcpConnection(ctx, bound)
+    fun get(server: PattyServer<ByteBuf>, ctx: ChannelHandlerContext, bound: ConnectionBound) =
+      CONNECTIONS.computeIfAbsent(ctx.channel().remoteAddress()) {
+        TcpConnection(server, ctx, bound)
       }
   }
-
-  private val channel = ctx.channel()
-  private val address = channel.remoteAddress()
-
   @Volatile
   var state = ConnectionState.UNCONNECTED
+  private val address: SocketAddress = channel.remoteAddress()
 
-  init {
-    channel.closeFuture().addListener(object : ChannelFutureListener {
-      override fun operationComplete(future: ChannelFuture) {
-        future.removeListener(this)
-        disconnect(DisconnectReason.DISCONNECTED)
-      }
-    })
-  }
-
-  fun disconnect(reason: DisconnectReason) {
+  override fun disconnect(reason: DisconnectReason) {
     CONNECTIONS.remove(address)
   }
 

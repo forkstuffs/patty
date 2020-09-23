@@ -23,14 +23,29 @@
  *
  */
 
-package io.github.portlek.patty.tcp
+package io.github.portlek.patty
 
-import io.github.portlek.patty.*
-import io.netty.buffer.ByteBuf
+import io.netty.channel.Channel
+import io.netty.channel.ChannelFuture
+import io.netty.channel.ChannelFutureListener
+import io.netty.channel.ChannelHandlerContext
+import io.netty.util.ReferenceCounted
 
-class TcpProtocol(
-  override val header: PacketHeader,
-  override val encryptor: PacketEncryptor? = null,
-  override val sizer: PacketSizer,
-  override val listener: ProtocolListener<ByteBuf>? = null
-) : Protocol<ByteBuf>
+abstract class Connection<O : ReferenceCounted>(
+  val server: PattyServer<O>,
+  ctx: ChannelHandlerContext,
+  val bound: ConnectionBound
+) {
+  protected val channel: Channel = ctx.channel()
+
+  init {
+    channel.closeFuture().addListener(object : ChannelFutureListener {
+      override fun operationComplete(future: ChannelFuture) {
+        future.removeListener(this)
+        disconnect(DisconnectReason.DISCONNECTED)
+      }
+    })
+  }
+
+  abstract fun disconnect(reason: DisconnectReason)
+}

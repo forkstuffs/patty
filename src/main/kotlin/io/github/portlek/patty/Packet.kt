@@ -27,10 +27,10 @@ package io.github.portlek.patty
 import io.netty.buffer.ByteBuf
 import io.netty.util.ReferenceCounted
 
-abstract class Packet<O : ReferenceCounted>(cls: Class<out Packet<O>>) {
-  abstract fun read(packet: O)
+abstract class Packet<O : ReferenceCounted> {
+  abstract fun read(buffer: O, connection: Connection<O>)
 
-  abstract fun write(buffer: ByteBuf)
+  abstract fun write(buffer: ByteBuf, connection: Connection<O>)
 
   open fun hasPriority() = false
 }
