@@ -23,7 +23,7 @@
  *
  */
 
-package io.github.portlek.patty.tcp.pipline
+package io.github.portlek.patty.tcp.pipeline
 
 import io.github.portlek.patty.Protocol
 import io.netty.buffer.ByteBuf

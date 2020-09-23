@@ -28,10 +28,10 @@ package io.github.portlek.patty.tcp
 import io.github.portlek.patty.PattyServer
 import io.github.portlek.patty.Protocol
 import io.github.portlek.patty.packet.ConnectionBound
-import io.github.portlek.patty.tcp.pipline.TcpPacketCodec
-import io.github.portlek.patty.tcp.pipline.TcpPacketEncryptor
-import io.github.portlek.patty.tcp.pipline.TcpPacketManager
-import io.github.portlek.patty.tcp.pipline.TcpPacketSizer
+import io.github.portlek.patty.tcp.pipeline.TcpPacketCodec
+import io.github.portlek.patty.tcp.pipeline.TcpPacketEncryptor
+import io.github.portlek.patty.tcp.pipeline.TcpPacketManager
+import io.github.portlek.patty.tcp.pipeline.TcpPacketSizer
 import io.netty.buffer.ByteBuf
 import io.netty.channel.Channel
 import io.netty.channel.ChannelInitializer
