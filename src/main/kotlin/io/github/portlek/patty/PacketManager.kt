@@ -32,12 +32,13 @@ import io.netty.util.ReferenceCounted
 import java.util.concurrent.LinkedBlockingQueue
 
 abstract class PacketManager<O : ReferenceCounted>(
-  protected val protocol: Protocol<O>
+  protected val patty: Patty<O>
 ) : SimpleChannelInboundHandler<Packet<O>>() {
   private val packets = LinkedBlockingQueue<Packet<O>>()
   private var channel: Channel? = null
   private var disconnected = false
   private var packetHandleThread: Thread? = null
+  protected lateinit var connection: Connection<O>
 
   override fun channelActive(ctx: ChannelHandlerContext) {
     if (disconnected || channel != null) {
@@ -45,12 +46,13 @@ abstract class PacketManager<O : ReferenceCounted>(
       return
     }
     channel = ctx.channel()
+    connection = Connection.get(patty, channel!!)
     packetHandleThread = Thread {
       try {
         var packet: Packet<O>?
         while (packets.take().also { packet = it } != null) {
-          protocol.listener?.also {
-            it.onPacketReceived(packet!!)
+          patty.protocol.serverListener?.also {
+            it.onPacketReceived(packet!!, connection)
           }
         }
       } catch (e: InterruptedException) {
@@ -59,11 +61,14 @@ abstract class PacketManager<O : ReferenceCounted>(
       }
     }
     packetHandleThread!!.start()
+    patty.protocol.serverListener?.also {
+      it.onConnect(connection)
+    }
   }
 
   override fun channelRead0(ctx: ChannelHandlerContext, packet: Packet<O>) {
     if (packet.hasPriority()) {
-      protocol.listener?.onPacketReceived(packet)
+      patty.protocol.serverListener?.onPacketReceived(packet, connection)
     } else {
       packets.put(packet)
     }

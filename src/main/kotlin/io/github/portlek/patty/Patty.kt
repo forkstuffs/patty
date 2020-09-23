@@ -23,10 +23,13 @@
  *
  */
 
-package io.github.portlek.patty.tcp
+package io.github.portlek.patty
 
-import io.github.portlek.patty.Packet
-import io.github.portlek.patty.ProtocolListener
-import io.netty.buffer.ByteBuf
+import io.netty.channel.Channel
+import io.netty.util.ReferenceCounted
 
-interface TcpProtocolListener : ProtocolListener<ByteBuf>
+abstract class Patty<O : ReferenceCounted>(
+  val protocol: Protocol<O>
+) {
+  protected var channel: Channel? = null
+}

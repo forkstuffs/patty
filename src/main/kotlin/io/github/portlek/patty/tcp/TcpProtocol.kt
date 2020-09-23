@@ -32,5 +32,5 @@ class TcpProtocol(
   override val header: PacketHeader,
   override val encryptor: PacketEncryptor? = null,
   override val sizer: PacketSizer,
-  override val listener: ProtocolListener<ByteBuf>? = null
+  override val serverListener: ServerListener<ByteBuf>? = null
 ) : Protocol<ByteBuf>

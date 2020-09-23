@@ -25,19 +25,27 @@
 
 package io.github.portlek.patty
 
-import io.github.portlek.patty.tcp.TcpProtocolListener
+import io.github.portlek.patty.tcp.TcpServerListener
 import io.netty.buffer.ByteBuf
 
-class TestProtocolListener : TcpProtocolListener {
-  override fun onPacketReceived(packet: Packet<ByteBuf>, connection: Connection<ByteBuf>) {
-    TODO("Not yet implemented")
+class TestServerListener : TcpServerListener {
+  override fun serverBound(patty: Patty<ByteBuf>) {
+    println("server bound!")
   }
 
-  override fun onPacketSent(packet: Packet<ByteBuf>, connection: Connection<ByteBuf>) {
-    TODO("Not yet implemented")
+  override fun serverClosing(patty: Patty<ByteBuf>) {
+    println("server closing!")
   }
 
-  override fun onPacketSending(packet: Packet<ByteBuf>, connection: Connection<ByteBuf>): Boolean {
-    TODO("Not yet implemented")
+  override fun serverClosed(patty: Patty<ByteBuf>) {
+    println("server closed")
+  }
+
+  override fun sessionAdded(patty: Patty<ByteBuf>, connection: Connection<ByteBuf>) {
+    println("session added!")
+  }
+
+  override fun sessionRemoved(patty: Patty<ByteBuf>, connection: Connection<ByteBuf>) {
+    println("session removed!")
   }
 }

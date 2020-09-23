@@ -25,10 +25,9 @@
 
 package io.github.portlek.patty.tcp
 
-import io.github.portlek.patty.ConnectionBound
+import io.github.portlek.patty.Connection
 import io.github.portlek.patty.Initializer
-import io.github.portlek.patty.PattyServer
-import io.github.portlek.patty.Protocol
+import io.github.portlek.patty.Patty
 import io.github.portlek.patty.tcp.pipeline.TcpPacketCodec
 import io.github.portlek.patty.tcp.pipeline.TcpPacketEncryptor
 import io.github.portlek.patty.tcp.pipeline.TcpPacketManager
@@ -36,22 +35,20 @@ import io.github.portlek.patty.tcp.pipeline.TcpPacketSizer
 import io.netty.buffer.ByteBuf
 import io.netty.channel.Channel
 import io.netty.channel.ChannelOption
-import io.netty.channel.socket.ServerSocketChannel
-import io.netty.channel.socket.SocketChannel
 
 class TcpServerInitializer(
-  private val server: PattyServer<ByteBuf>,
-  private val protocol: Protocol<ByteBuf>
+  private val patty: Patty<ByteBuf>
 ) : Initializer<Channel>() {
   override fun initChannel(channel: Channel) {
     channel.config().setOption(ChannelOption.IP_TOS, 0x18)
     channel.config().setOption(ChannelOption.TCP_NODELAY, false)
     refreshReadTimeoutHandler(channel)
     refreshWriteTimeoutHandler(channel)
+    Connection.get(patty, channel)
     channel.pipeline()
-      .addLast("encryptor", TcpPacketEncryptor(protocol))
-      .addLast("sizer", TcpPacketSizer(protocol))
-      .addLast("codec", TcpPacketCodec(server, protocol, ConnectionBound.SERVER))
-      .addLast("manager", TcpPacketManager(protocol))
+      .addLast("encryptor", TcpPacketEncryptor(patty))
+      .addLast("sizer", TcpPacketSizer(patty))
+      .addLast("codec", TcpPacketCodec(patty))
+      .addLast("manager", TcpPacketManager(patty))
   }
 }

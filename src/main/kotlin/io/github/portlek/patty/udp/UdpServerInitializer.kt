@@ -1,5 +1,7 @@
 /*
- * Copyright (c) 2020 Shiru ka
+ * MIT License
+ *
+ * Copyright (c) 2020 Hasan Demirtaş
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,21 +23,19 @@
  *
  */
 
-package io.github.portlek.patty
+package io.github.portlek.patty.udp
 
-import io.github.portlek.patty.packets.TestPacket
-import io.github.portlek.patty.tcp.TcpPacket
-import io.github.portlek.patty.tcp.TcpPacketRegistry
+import io.github.portlek.patty.Patty
+import io.github.portlek.patty.PattyServer
+import io.github.portlek.patty.Protocol
+import io.netty.channel.ChannelInitializer
+import io.netty.channel.socket.DatagramChannel
+import io.netty.channel.socket.DatagramPacket
 
-enum class Packets(
-  val id: Int,
-  val cls: Class<out TcpPacket>
-) {
-  TEST(0, TestPacket::class.java);
-
-  companion object {
-    fun registerAll() {
-      values().forEach { TcpPacketRegistry.register(it.cls, it.id) }
-    }
+class UdpServerInitializer(
+  private val patty: Patty<DatagramPacket>,
+) : ChannelInitializer<DatagramChannel>() {
+  override fun initChannel(channel: DatagramChannel) {
+    val address = channel.remoteAddress()
   }
 }

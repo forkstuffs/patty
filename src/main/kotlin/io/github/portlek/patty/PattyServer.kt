@@ -26,7 +26,7 @@ package io.github.portlek.patty
 
 import io.github.portlek.patty.tcp.TcpProtocol
 import io.github.portlek.patty.tcp.TcpServerInitializer
-import io.github.portlek.patty.udp.UdpInitializer
+import io.github.portlek.patty.udp.UdpServerInitializer
 import io.github.portlek.patty.util.PoolSpec
 import io.netty.bootstrap.Bootstrap
 import io.netty.bootstrap.ServerBootstrap
@@ -49,38 +49,87 @@ class PattyServer<O : ReferenceCounted> private constructor(
   private val ip: String,
   private val port: Int,
   private val channelClass: Class<out Channel>,
-  val protocol: Protocol<O>
-) {
+  protocol: Protocol<O>
+) : Patty<O>(protocol) {
   private val eventLoop = if (Epoll.isAvailable()) {
     EpollEventLoopGroup(PoolSpec.UNCAUGHT_FACTORY)
   } else {
     NioEventLoopGroup(PoolSpec.UNCAUGHT_FACTORY)
   }
-  private var channel: Channel? = null
 
   fun bind(wait: Boolean = true) {
     val future = if (ServerChannel::class.java.isAssignableFrom(channelClass)) {
       ServerBootstrap()
         .group(eventLoop)
         .channel(channelClass as Class<out ServerChannel>)
-        .childHandler(TcpServerInitializer(this as PattyServer<ByteBuf>, protocol))
+        .childHandler(TcpServerInitializer(this as Patty<ByteBuf>))
         .bind(ip, port)
     } else {
       Bootstrap()
         .option(ChannelOption.SO_BROADCAST, true)
         .group(eventLoop)
         .channel(channelClass)
-        .handler(UdpInitializer(this as PattyServer<DatagramPacket>, protocol))
+        .handler(UdpServerInitializer(this as Patty<DatagramPacket>))
         .bind(ip, port)
     }
     if (wait) {
       channel = future.sync().channel()
+      protocol.serverListener?.also {
+        it.serverBound(this)
+      }
     } else {
       future.addListener(ChannelFutureListener {
         if (it.isSuccess) {
           channel = it.channel()
+          protocol.serverListener?.also { listener ->
+            listener.serverBound(this)
+          }
         }
       })
+    }
+  }
+
+  fun close(wait: Boolean = true) {
+    protocol.serverListener?.also {
+      it.serverClosing(this)
+    }
+    for (connection in Connection.CONNECTIONS.values) {
+      if (connection.isConnected()) {
+        connection.disconnect("Server closed.")
+      }
+    }
+    channel?.also {
+      if (it.isOpen) {
+        val future = it.close()
+        if (wait) {
+          future.sync()
+          protocol.serverListener?.also { listener ->
+            listener.serverClosed(this)
+          }
+        } else {
+          future.addListener { listener ->
+            if (listener.isSuccess) {
+              protocol.serverListener?.also { serverListener ->
+                serverListener.serverClosed(this)
+              }
+            }
+          }
+        }
+      }
+    }
+    channel = null
+    val future = eventLoop.shutdownGracefully()
+    if (wait) {
+      future.sync()
+    } else {
+      future.addListener {
+        if (!it.isSuccess) {
+          System.err.println("[ERROR] Failed to asynchronously close connection listener.")
+          if (it.cause() != null) {
+            it.cause().printStackTrace()
+          }
+        }
+      }
     }
   }
 
@@ -97,8 +146,8 @@ class PattyServer<O : ReferenceCounted> private constructor(
     }
 
     fun tcp(ip: String, port: Int, packetHeader: PacketHeader, packetEncryptor: PacketEncryptor? = null,
-            packetSizer: PacketSizer, protocolListener: ProtocolListener<ByteBuf>? = null) =
-      PattyServer(ip, port, tcpChannel, TcpProtocol(packetHeader, packetEncryptor, packetSizer, protocolListener))
+            packetSizer: PacketSizer, serverListener: ServerListener<ByteBuf>? = null) =
+      PattyServer(ip, port, tcpChannel, TcpProtocol(packetHeader, packetEncryptor, packetSizer, serverListener))
 
     fun tcp(ip: String, port: Int, protocol: TcpProtocol) = PattyServer(ip, port, tcpChannel, protocol)
   }

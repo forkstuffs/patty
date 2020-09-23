@@ -26,9 +26,9 @@
 package io.github.portlek.patty.tcp.pipeline
 
 import io.github.portlek.patty.PacketManager
-import io.github.portlek.patty.Protocol
+import io.github.portlek.patty.Patty
 import io.netty.buffer.ByteBuf
 
 class TcpPacketManager(
-  protocol: Protocol<ByteBuf>
-) : PacketManager<ByteBuf>(protocol)
+  patty: Patty<ByteBuf>
+) : PacketManager<ByteBuf>(patty)

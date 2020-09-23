@@ -25,15 +25,17 @@
 
 package io.github.portlek.patty.tcp.pipeline
 
-import io.github.portlek.patty.Protocol
+import io.github.portlek.patty.Patty
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
 import io.netty.channel.ChannelHandlerContext
 import io.netty.handler.codec.ByteToMessageCodec
 
 class TcpPacketSizer(
-  private val protocol: Protocol<ByteBuf>
+  patty: Patty<ByteBuf>
 ) : ByteToMessageCodec<ByteBuf>() {
+  private val protocol = patty.protocol
+
   override fun encode(ctx: ChannelHandlerContext, msg: ByteBuf, out: ByteBuf) {
     val length = msg.readableBytes()
     out.ensureWritable(protocol.header.getLengthSize(length) + length)

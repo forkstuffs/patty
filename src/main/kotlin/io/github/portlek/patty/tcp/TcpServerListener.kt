@@ -23,13 +23,9 @@
  *
  */
 
-package io.github.portlek.patty
+package io.github.portlek.patty.tcp
 
-enum class ConnectionState {
-  UNCONNECTED,
-  INITIALIZING,
-  RELIABLE,
-  CONNECTING,
-  CONNECTED,
-  DISCONNECTING
-}
+import io.github.portlek.patty.ServerListener
+import io.netty.buffer.ByteBuf
+
+interface TcpServerListener : ServerListener<ByteBuf>

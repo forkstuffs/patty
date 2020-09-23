@@ -25,14 +25,15 @@
 
 package io.github.portlek.patty.tcp.pipeline
 
-import io.github.portlek.patty.Protocol
+import io.github.portlek.patty.Patty
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 import io.netty.handler.codec.ByteToMessageCodec
 
 class TcpPacketEncryptor(
-  private val protocol: Protocol<ByteBuf>
+  patty: Patty<ByteBuf>
 ) : ByteToMessageCodec<ByteBuf>() {
+  private val protocol = patty.protocol
   private var decryptedArray = ByteArray(0)
   private var encryptedArray = ByteArray(0)
 

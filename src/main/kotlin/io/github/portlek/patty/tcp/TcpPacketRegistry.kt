@@ -25,8 +25,6 @@
 
 package io.github.portlek.patty.tcp
 
-import io.github.portlek.patty.ConnectionBound
-import io.github.portlek.patty.ConnectionState
 import java.lang.reflect.Constructor
 import java.util.*
 
@@ -37,7 +35,7 @@ object TcpPacketRegistry {
 
   fun <T : TcpPacket> createPacket(cls: Class<out TcpPacket>) = CTORS[cls]?.newInstance() as T
 
-  fun getPacket(state: ConnectionState, bound: ConnectionBound, id: Int) = PACKETS[shift(state, bound, id)]
+  fun getPacket(id: Int) = PACKETS[id]
 
   fun getPacketId(cls: Class<out TcpPacket>): Int {
     val identifier = PACKET_IDS.getOrDefault(cls, -1)
@@ -49,23 +47,9 @@ object TcpPacketRegistry {
 
   fun getPacketId(info: Int) = info and 0x7ffffff
 
-  fun getPacketState(info: Int) = ConnectionState.values()[info shl 27 and 0xf]
-
-  fun getPacketBound(info: Int) = ConnectionBound.values()[info shl 31 and 0x1]
-
-  fun register(cls: Class<out TcpPacket>, state: ConnectionState, bound: ConnectionBound, id: Int) {
-    val identifier = shift(state, bound, id)
-    PACKET_IDS[cls] = identifier
-    if (bound == ConnectionBound.SERVER) {
-      PACKETS[identifier] = cls
-      CTORS[cls] = cls.getDeclaredConstructor()
-    }
-  }
-
-  private fun shift(state: ConnectionState, bound: ConnectionBound, id: Int): Int {
-    var identifier = id
-    identifier = identifier or (state.ordinal shl 27)
-    identifier = identifier or (bound.ordinal shl 31)
-    return identifier
+  fun register(cls: Class<out TcpPacket>, id: Int) {
+    PACKET_IDS[cls] = id
+    PACKETS[id] = cls
+    CTORS[cls] = cls.getDeclaredConstructor()
   }
 }

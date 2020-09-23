@@ -25,10 +25,8 @@
 
 package io.github.portlek.patty.tcp.pipeline
 
-import io.github.portlek.patty.ConnectionBound
-import io.github.portlek.patty.PattyServer
-import io.github.portlek.patty.Protocol
-import io.github.portlek.patty.tcp.TcpConnection
+import io.github.portlek.patty.Connection
+import io.github.portlek.patty.Patty
 import io.github.portlek.patty.tcp.TcpPacket
 import io.github.portlek.patty.tcp.TcpPacketRegistry
 import io.netty.buffer.ByteBuf
@@ -36,14 +34,10 @@ import io.netty.channel.ChannelHandlerContext
 import io.netty.handler.codec.ByteToMessageCodec
 
 class TcpPacketCodec(
-  private val server: PattyServer<ByteBuf>,
-  private val protocol: Protocol<ByteBuf>,
-  private val bound: ConnectionBound
+  patty: Patty<ByteBuf>
 ) : ByteToMessageCodec<TcpPacket>() {
-  private lateinit var connection: TcpConnection
-  override fun handlerAdded(ctx: ChannelHandlerContext) {
-    connection = TcpConnection.get(server, ctx, bound)
-  }
+  private val protocol = patty.protocol
+  private lateinit var connection: Connection<ByteBuf>
 
   override fun encode(ctx: ChannelHandlerContext, packet: TcpPacket, buf: ByteBuf) {
     val initial = buf.readerIndex()
@@ -52,8 +46,8 @@ class TcpPacketCodec(
       packet.write(buf, connection)
     } catch (t: Throwable) {
       buf.writerIndex(initial)
-      protocol.listener?.also {
-        if (it.onPacketError(t)) {
+      protocol.serverListener?.also {
+        if (it.onPacketError(t, connection)) {
           throw t
         }
       }
@@ -68,7 +62,7 @@ class TcpPacketCodec(
         buf.readerIndex(initial)
         return
       }
-      val packet = TcpPacketRegistry.getPacket(connection.state, connection.bound, id)
+      val packet = TcpPacketRegistry.getPacket(id)
       if (packet == null) {
         buf.readerIndex(initial)
         return
@@ -80,8 +74,8 @@ class TcpPacketCodec(
       out.add(packet)
     } catch (t: Throwable) {
       buf.readerIndex(buf.readerIndex() + buf.readableBytes())
-      protocol.listener?.also {
-        if (it.onPacketError(t)) {
+      protocol.serverListener?.also {
+        if (it.onPacketError(t, connection)) {
           throw t
         }
       }

@@ -27,12 +27,14 @@ package io.github.portlek.patty
 
 import io.netty.util.ReferenceCounted
 
-interface ProtocolListener<O : ReferenceCounted> {
-  fun onPacketError(throwable: Throwable, connection: Connection<O>) = true
+interface ServerListener<O : ReferenceCounted> {
+  fun serverBound(patty: Patty<O>)
 
-  fun onPacketReceived(packet: Packet<O>, connection: Connection<O>)
+  fun serverClosing(patty: Patty<O>)
 
-  fun onPacketSent(packet: Packet<O>, connection: Connection<O>)
+  fun serverClosed(patty: Patty<O>)
 
-  fun onPacketSending(packet: Packet<O>, connection: Connection<O>): Boolean
+  fun sessionAdded(patty: Patty<O>, connection: Connection<O>)
+
+  fun sessionRemoved(patty: Patty<O>, connection: Connection<O>)
 }

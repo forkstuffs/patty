@@ -23,8 +23,20 @@
  *
  */
 
-package io.github.portlek.patty
+package io.github.portlek.patty;
 
-enum class ConnectionBound {
-  CLIENT, SERVER;
+public interface SessionListener {
+  void packetReceived(PacketReceivedEvent event);
+
+  void packetSending(PacketSendingEvent event);
+
+  void packetSent(PacketSentEvent event);
+
+  void packetError(PacketErrorEvent event);
+
+  void connected(ConnectedEvent event);
+
+  void disconnecting(DisconnectingEvent event);
+
+  void disconnected(DisconnectedEvent event);
 }

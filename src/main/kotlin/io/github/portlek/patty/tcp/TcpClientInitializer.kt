@@ -23,23 +23,30 @@
  *
  */
 
-package io.github.portlek.patty.udp
+package io.github.portlek.patty.tcp
 
-import io.github.portlek.patty.Connection
-import io.github.portlek.patty.ConnectionBound
-import io.github.portlek.patty.Packet
-import io.github.portlek.patty.PattyServer
-import io.netty.channel.ChannelHandlerContext
-import io.netty.channel.socket.DatagramPacket
+import io.github.portlek.patty.Initializer
+import io.github.portlek.patty.Patty
+import io.github.portlek.patty.tcp.pipeline.TcpPacketCodec
+import io.github.portlek.patty.tcp.pipeline.TcpPacketEncryptor
+import io.github.portlek.patty.tcp.pipeline.TcpPacketManager
+import io.github.portlek.patty.tcp.pipeline.TcpPacketSizer
+import io.netty.buffer.ByteBuf
+import io.netty.channel.Channel
+import io.netty.channel.ChannelOption
 
-class UdpConnection(
-  server: PattyServer<DatagramPacket>,
-  ctx: ChannelHandlerContext,
-  bound: ConnectionBound
-) : Connection<DatagramPacket>(server, ctx, bound) {
-  override fun sendPacket(packet: Packet<DatagramPacket>) {
-  }
-
-  override fun disconnect(reason: String, cause: Throwable?) {
+class TcpClientInitializer(
+  private val patty: Patty<ByteBuf>,
+) : Initializer<Channel>() {
+  override fun initChannel(channel: Channel) {
+    channel.config().setOption(ChannelOption.IP_TOS, 0x18)
+    channel.config().setOption(ChannelOption.TCP_NODELAY, false)
+    refreshReadTimeoutHandler(channel)
+    refreshWriteTimeoutHandler(channel)
+    channel.pipeline()
+      .addLast("encryptor", TcpPacketEncryptor(patty))
+      .addLast("sizer", TcpPacketSizer(patty))
+      .addLast("codec", TcpPacketCodec(patty))
+      .addLast("manager", TcpPacketManager(patty))
   }
 }
