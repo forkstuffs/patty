@@ -42,10 +42,12 @@ abstract class Connection<O : ReferenceCounted>(
     channel.closeFuture().addListener(object : ChannelFutureListener {
       override fun operationComplete(future: ChannelFuture) {
         future.removeListener(this)
-        disconnect(DisconnectReason.DISCONNECTED)
+        disconnect("Connection lost", null)
       }
     })
   }
 
-  abstract fun disconnect(reason: DisconnectReason)
+  abstract fun sendPacket(packet: Packet<O>)
+
+  abstract fun disconnect(reason: String, cause: Throwable?)
 }

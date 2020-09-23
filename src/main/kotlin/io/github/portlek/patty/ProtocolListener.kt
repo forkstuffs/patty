@@ -33,4 +33,6 @@ interface ProtocolListener<O : ReferenceCounted> {
   fun onPacketReceived(packet: Packet<O>)
 
   fun onPacketSent(packet: Packet<O>)
+
+  fun onPacketSending(packet: Packet<O>): Boolean
 }

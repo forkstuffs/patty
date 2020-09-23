@@ -27,7 +27,12 @@ package io.github.portlek.patty.tcp
 
 import io.github.portlek.patty.*
 import io.netty.buffer.ByteBuf
+import io.netty.channel.ChannelFutureListener
 import io.netty.channel.ChannelHandlerContext
+import io.netty.channel.ConnectTimeoutException
+import io.netty.handler.timeout.ReadTimeoutException
+import io.netty.handler.timeout.WriteTimeoutException
+import java.net.ConnectException
 import java.net.SocketAddress
 
 class TcpConnection(
@@ -47,7 +52,37 @@ class TcpConnection(
   var state = ConnectionState.UNCONNECTED
   private val address: SocketAddress = channel.remoteAddress()
 
-  override fun disconnect(reason: DisconnectReason) {
+  override fun sendPacket(packet: Packet<ByteBuf>) {
+    val cancelled = server.protocol.listener?.let {
+      !it.onPacketSending(packet)
+    } ?: true
+    if (!cancelled) {
+      channel.writeAndFlush(packet).addListener(ChannelFutureListener { future ->
+        if (future.isSuccess) {
+          server.protocol.listener?.also {
+            it.onPacketSent(packet)
+          }
+        } else {
+          exceptionCaught(future.cause())
+        }
+      })
+    }
+  }
+
+  private fun exceptionCaught(cause: Throwable) {
+    val message = if (cause is ConnectTimeoutException || cause is ConnectException && cause.message!!.contains("connection timed out")) {
+      "Connection timed out."
+    } else if (cause is ReadTimeoutException) {
+      "Read timed out."
+    } else if (cause is WriteTimeoutException) {
+      "Write timed out."
+    } else {
+      cause.toString()
+    }
+    disconnect(message, cause)
+  }
+
+  override fun disconnect(reason: String, cause: Throwable?) {
     CONNECTIONS.remove(address)
   }
 
