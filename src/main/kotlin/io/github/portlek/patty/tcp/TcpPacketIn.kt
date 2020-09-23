@@ -23,10 +23,10 @@
  *
  */
 
-package io.github.portlek.patty.packet
+package io.github.portlek.patty.tcp
 
+import io.github.portlek.patty.packet.Packet
+import io.github.portlek.patty.packet.PacketIn
 import io.netty.buffer.ByteBuf
 
-abstract class PacketOut(cls: Class<out Packet>) : Packet(cls) {
-  abstract fun write(buffer: ByteBuf)
-}
+abstract class TcpPacketIn(cls: Class<out Packet>) : PacketIn<ByteBuf>(cls)

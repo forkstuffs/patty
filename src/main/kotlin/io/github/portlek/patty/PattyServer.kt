@@ -29,9 +29,7 @@ import io.github.portlek.patty.udp.UdpInitializer
 import io.github.portlek.patty.util.PoolSpec
 import io.netty.bootstrap.Bootstrap
 import io.netty.bootstrap.ServerBootstrap
-import io.netty.channel.Channel
-import io.netty.channel.ChannelFutureListener
-import io.netty.channel.ServerChannel
+import io.netty.channel.*
 import io.netty.channel.epoll.Epoll
 import io.netty.channel.epoll.EpollDatagramChannel
 import io.netty.channel.epoll.EpollEventLoopGroup
@@ -40,64 +38,74 @@ import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioDatagramChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
-import java.util.function.BiConsumer
+import java.util.function.BiFunction
 import java.util.function.Consumer
 
 class PattyServer(
-  private val host: String,
+  private val ip: String,
   private val port: Int,
-  private val channelClass: Class<out Channel>
+  private val channelClass: Class<out Channel>,
+  private val handlers: List<ChannelHandler>
 ) {
   private val eventLoop = if (Epoll.isAvailable()) {
     EpollEventLoopGroup(PoolSpec.UNCAUGHT_FACTORY)
   } else {
     NioEventLoopGroup(PoolSpec.UNCAUGHT_FACTORY)
   }
-  private var whenServerBound = Consumer<PattyServer> { }
-  private var whenServerClosing = Consumer<PattyServer> { }
-  private var whenServerClosed = Consumer<PattyServer> { }
-  private var whenSessionAdded = BiConsumer<PattyServer, Session> { _, _ -> }
-  private var whenSessionRemoved = BiConsumer<PattyServer, Session> { _, _ -> }
+  private var whenServerBound = Consumer<Session> { }
+  private var whenServerClosing = Consumer<Session> { }
+  private var whenServerClosed = Consumer<Session> { }
+  private var whenSessionAdded = Consumer<Session> { _ -> }
+  private var whenSessionRemoved = Consumer<Session> { _ -> }
+  private var onPacketError = BiFunction<Session, Throwable, Boolean> { _, _ -> true }
   private var channel: Channel? = null
 
-  fun whenServerBound(whenServerBound: Consumer<PattyServer>): PattyServer {
+  fun whenServerBound(whenServerBound: Consumer<Session>): PattyServer {
     this.whenServerBound = whenServerBound
     return this
   }
 
-  fun whenServerClosing(whenServerClosing: Consumer<PattyServer>): PattyServer {
+  fun whenServerClosing(whenServerClosing: Consumer<Session>): PattyServer {
     this.whenServerClosing = whenServerClosing
     return this
   }
 
-  fun whenServerClosed(whenServerClosed: Consumer<PattyServer>): PattyServer {
+  fun whenServerClosed(whenServerClosed: Consumer<Session>): PattyServer {
     this.whenServerClosed = whenServerClosed
     return this
   }
 
-  fun whenSessionAdded(whenSessionAdded: BiConsumer<PattyServer, Session>): PattyServer {
+  fun whenSessionAdded(whenSessionAdded: Consumer<Session>): PattyServer {
     this.whenSessionAdded = whenSessionAdded
     return this
   }
 
-  fun whenSessionRemoved(whenSessionRemoved: BiConsumer<PattyServer, Session>): PattyServer {
+  fun whenSessionRemoved(whenSessionRemoved: Consumer<Session>): PattyServer {
     this.whenSessionRemoved = whenSessionRemoved
+    return this
+  }
+
+  fun onPacketError(onPacketError: BiFunction<Session, Throwable, Boolean>): PattyServer {
+    this.onPacketError = onPacketError
     return this
   }
 
   fun bind(wait: Boolean = true) {
     val future = if (channelClass is SocketChannel) {
       ServerBootstrap()
+        .option(ChannelOption.IP_TOS, 0x18)
+        .option(ChannelOption.TCP_NODELAY, false)
         .group(eventLoop)
         .channel(channelClass as Class<out ServerChannel>)
-        .childHandler(TcpInitializer(this))
-        .bind()
+        .childHandler(TcpInitializer(this, handlers))
+        .bind(ip, port)
     } else {
       Bootstrap()
+        .option(ChannelOption.SO_BROADCAST, true)
         .group(eventLoop)
         .channel(channelClass)
-        .handler(UdpInitializer(this))
-        .bind()
+        .handler(UdpInitializer(this, handlers))
+        .bind(ip, port)
     }
     if (wait) {
       channel = future.sync().channel()
@@ -121,9 +129,7 @@ class PattyServer(
     } else {
       NioDatagramChannel::class.java
     }
-
-    fun tcp(host: String, port: Int) = PattyServer(host, port, tcpChannel)
-
-    fun udp(host: String, port: Int) = PattyServer(host, port, udpChannel)
+//    fun tcp(ip: String, port: Int) = tcp(ip, port, tcpChannel)
+//    fun udp(ip: String, port: Int) = udp(ip, port, udpChannel)
   }
 }

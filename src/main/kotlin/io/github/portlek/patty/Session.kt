@@ -24,4 +24,12 @@
  */
 package io.github.portlek.patty
 
-interface Session 
+import io.github.portlek.patty.packet.PacketBound
+
+interface Session {
+  val packetHeader: PacketHeader
+  val bound: PacketBound
+  var state: ConnectionState
+
+  fun onPacketError(throwable: Throwable): Boolean
+}

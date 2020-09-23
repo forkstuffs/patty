@@ -44,14 +44,14 @@ interface PacketHeader {
     override val isLengthVariable = false
     override val lengthSize = 0
 
-    override fun getLengthSize(length: Int) = 0
+    override fun getLengthSize(length: Int) = -1
 
-    override fun readLength(input: ByteBuf, available: Int) = 0
+    override fun readLength(input: ByteBuf, available: Int) = -1
 
     override fun writeLength(output: ByteBuf, length: Int) {
     }
 
-    override fun readPacketId(input: ByteBuf) = 0
+    override fun readPacketId(input: ByteBuf) = -1
 
     override fun writePacketId(output: ByteBuf, packetId: Int) {
     }

@@ -26,14 +26,15 @@
 package io.github.portlek.patty.tcp
 
 import io.github.portlek.patty.PattyServer
+import io.netty.channel.ChannelHandler
 import io.netty.channel.ChannelInitializer
 import io.netty.channel.ServerChannel
 
 class TcpInitializer(
-  private val server: PattyServer
+  private val server: PattyServer,
+  private val handlers: List<ChannelHandler>
 ) : ChannelInitializer<ServerChannel>() {
   override fun initChannel(channel: ServerChannel) {
     val address = channel.remoteAddress()
-
   }
 }

@@ -26,5 +26,5 @@
 package io.github.portlek.patty.packet
 
 open class Packet(cls: Class<out Packet>) {
-  val id = PacketRegistry.getPacketId(PacketRegistry.getPacketId(cls)).toByte()
+  val id = PacketRegistry.getPacketId(PacketRegistry.getPacketId(cls))
 }
