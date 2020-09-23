@@ -25,10 +25,15 @@
 
 package io.github.portlek.patty
 
-import io.netty.util.ReferenceCounted
+import io.github.portlek.patty.tcp.TcpPacket
+import io.github.portlek.patty.tcp.TcpPacketListener
 
-interface PacketListener<O : ReferenceCounted, P : Packet<O>> {
-  fun onPacketError(throwable: Throwable): Boolean
+class TestPacketListener : TcpPacketListener {
+  override fun onPacketError(throwable: Throwable): Boolean {
+    TODO("Not yet implemented")
+  }
 
-  fun onPacketReceived(packet: P)
+  override fun onPacketReceived(packet: TcpPacket) {
+    TODO("Not yet implemented")
+  }
 }

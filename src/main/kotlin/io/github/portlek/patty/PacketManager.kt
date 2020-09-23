@@ -25,6 +25,7 @@
 
 package io.github.portlek.patty
 
+import io.netty.channel.Channel
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.SimpleChannelInboundHandler
 import io.netty.util.ReferenceCounted
@@ -34,6 +35,31 @@ abstract class PacketManager<O : ReferenceCounted>(
   protected val protocol: Protocol<O>
 ) : SimpleChannelInboundHandler<Packet<O>>() {
   private val packets = LinkedBlockingQueue<Packet<O>>()
+  private var channel: Channel? = null
+  private var disconnected = false
+  private var packetHandleThread: Thread? = null
+
+  override fun channelActive(ctx: ChannelHandlerContext) {
+    if (disconnected || channel != null) {
+      ctx.channel().close()
+      return
+    }
+    channel = ctx.channel()
+    packetHandleThread = Thread {
+      try {
+        var packet: Packet<O>?
+        while (packets.take().also { packet = it } != null) {
+          protocol.listener?.also {
+            it.onPacketReceived(packet!!)
+          }
+        }
+      } catch (e: InterruptedException) {
+      } catch (t: Throwable) {
+        exceptionCaught(null, t)
+      }
+    }
+    packetHandleThread!!.start()
+  }
 
   override fun channelRead0(ctx: ChannelHandlerContext, packet: Packet<O>) {
     if (packet.hasPriority()) {
