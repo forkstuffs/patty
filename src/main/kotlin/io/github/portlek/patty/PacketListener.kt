@@ -25,7 +25,7 @@
 
 package io.github.portlek.patty
 
-import io.github.portlek.patty.packet.Packet
+import io.github.portlek.patty.Packet
 import io.netty.util.ReferenceCounted
 
 interface PacketListener<O : ReferenceCounted> {

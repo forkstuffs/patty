@@ -24,9 +24,13 @@
  */
 package io.github.portlek.patty
 
-interface Packet {
-  class EmptyPacket : Packet
-  companion object {
-    val EMPTY: Packet = EmptyPacket()
-  }
+import io.netty.buffer.ByteBuf
+import io.netty.util.ReferenceCounted
+
+abstract class Packet<O : ReferenceCounted>(cls: Class<out Packet<O>>) {
+  abstract fun read(packet: O)
+
+  abstract fun write(buffer: ByteBuf)
+
+  open fun hasPriority() = false
 }

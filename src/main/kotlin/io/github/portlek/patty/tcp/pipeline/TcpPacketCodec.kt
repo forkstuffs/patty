@@ -26,7 +26,7 @@
 package io.github.portlek.patty.tcp.pipeline
 
 import io.github.portlek.patty.Protocol
-import io.github.portlek.patty.packet.ConnectionBound
+import io.github.portlek.patty.ConnectionBound
 import io.github.portlek.patty.tcp.TcpConnection
 import io.github.portlek.patty.tcp.TcpPacket
 import io.github.portlek.patty.tcp.TcpPacketRegistry

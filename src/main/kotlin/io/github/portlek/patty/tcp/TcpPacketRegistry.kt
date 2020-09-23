@@ -26,7 +26,7 @@
 package io.github.portlek.patty.tcp
 
 import io.github.portlek.patty.ConnectionState
-import io.github.portlek.patty.packet.ConnectionBound
+import io.github.portlek.patty.ConnectionBound
 import java.lang.reflect.Constructor
 import java.util.*
 

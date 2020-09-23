@@ -27,7 +27,7 @@ package io.github.portlek.patty.tcp
 
 import io.github.portlek.patty.ConnectionState
 import io.github.portlek.patty.DisconnectReason
-import io.github.portlek.patty.packet.ConnectionBound
+import io.github.portlek.patty.ConnectionBound
 import io.netty.channel.ChannelFuture
 import io.netty.channel.ChannelFutureListener
 import io.netty.channel.ChannelHandlerContext
