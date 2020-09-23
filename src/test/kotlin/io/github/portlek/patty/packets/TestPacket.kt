@@ -23,14 +23,17 @@
  *
  */
 
-package io.github.portlek.patty.tcp
+package io.github.portlek.patty.packets
 
-import io.github.portlek.patty.*
+import io.github.portlek.patty.tcp.TcpPacket
 import io.netty.buffer.ByteBuf
 
-class TcpProtocol(
-  override val header: PacketHeader,
-  override val encryptor: PacketEncryptor? = null,
-  override val sizer: PacketSizer,
-  override val listener: ProtocolListener<ByteBuf, Packet<ByteBuf>>? = null
-) : Protocol<ByteBuf>
+class TestPacket : TcpPacket(TestPacket::class.java) {
+  override fun read(packet: ByteBuf) {
+    TODO("Not yet implemented")
+  }
+
+  override fun write(buffer: ByteBuf) {
+    TODO("Not yet implemented")
+  }
+}

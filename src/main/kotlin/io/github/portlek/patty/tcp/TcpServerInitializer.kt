@@ -34,14 +34,16 @@ import io.github.portlek.patty.tcp.pipeline.TcpPacketEncryptor
 import io.github.portlek.patty.tcp.pipeline.TcpPacketManager
 import io.github.portlek.patty.tcp.pipeline.TcpPacketSizer
 import io.netty.buffer.ByteBuf
+import io.netty.channel.Channel
 import io.netty.channel.ChannelOption
 import io.netty.channel.socket.ServerSocketChannel
+import io.netty.channel.socket.SocketChannel
 
 class TcpServerInitializer(
   private val server: PattyServer<ByteBuf>,
   private val protocol: Protocol<ByteBuf>
-) : Initializer<ServerSocketChannel>() {
-  override fun initChannel(channel: ServerSocketChannel) {
+) : Initializer<Channel>() {
+  override fun initChannel(channel: Channel) {
     channel.config().setOption(ChannelOption.IP_TOS, 0x18)
     channel.config().setOption(ChannelOption.TCP_NODELAY, false)
     refreshReadTimeoutHandler(channel)

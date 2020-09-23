@@ -23,14 +23,34 @@
  *
  */
 
-package io.github.portlek.patty.tcp
+package io.github.portlek.patty.util
 
-import io.github.portlek.patty.*
 import io.netty.buffer.ByteBuf
+import java.io.IOException
 
-class TcpProtocol(
-  override val header: PacketHeader,
-  override val encryptor: PacketEncryptor? = null,
-  override val sizer: PacketSizer,
-  override val listener: ProtocolListener<ByteBuf, Packet<ByteBuf>>? = null
-) : Protocol<ByteBuf>
+object ReadWrite {
+  fun readVarInt(buf: ByteBuf): Int {
+    var value = 0
+    var size = 0
+    var b: Int
+    while (buf.readByte().toInt().let {
+        b = it
+        it
+      } and 0x80 == 0x80) {
+      value = value or (b and 0x7F shl size++ * 7)
+      if (size > 5) {
+        throw IOException("VarInt too long (length must be <= 5)")
+      }
+    }
+    return value or (b and 0x7F shl size * 7)
+  }
+
+  fun writeVarInt(buf: ByteBuf, towrite: Int) {
+    var temp = towrite
+    while ((temp and 0x7F.inv()) != 0) {
+      buf.writeByte((temp and 0x7F) or 0x80)
+      temp = temp ushr 7
+    }
+    buf.writeByte(temp)
+  }
+}

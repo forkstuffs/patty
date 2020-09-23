@@ -23,9 +23,12 @@
  *
  */
 
-package io.github.portlek.patty.tcp
+package io.github.portlek.patty
 
-import io.github.portlek.patty.PacketListener
-import io.netty.buffer.ByteBuf
+import io.netty.util.ReferenceCounted
 
-interface TcpPacketListener : PacketListener<ByteBuf, TcpPacket>
+interface ProtocolListener<O : ReferenceCounted, P : Packet<O>> {
+  fun onPacketError(throwable: Throwable): Boolean
+
+  fun onPacketReceived(packet: P)
+}

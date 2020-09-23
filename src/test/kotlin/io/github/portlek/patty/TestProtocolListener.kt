@@ -25,15 +25,15 @@
 
 package io.github.portlek.patty
 
-import io.github.portlek.patty.tcp.TcpPacket
-import io.github.portlek.patty.tcp.TcpPacketListener
+import io.github.portlek.patty.tcp.TcpProtocolListener
+import io.netty.buffer.ByteBuf
 
-class TestPacketListener : TcpPacketListener {
+class TestProtocolListener : TcpProtocolListener {
   override fun onPacketError(throwable: Throwable): Boolean {
     TODO("Not yet implemented")
   }
 
-  override fun onPacketReceived(packet: TcpPacket) {
+  override fun onPacketReceived(packet: Packet<ByteBuf>) {
     TODO("Not yet implemented")
   }
 }

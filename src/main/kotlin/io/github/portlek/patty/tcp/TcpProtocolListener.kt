@@ -25,12 +25,8 @@
 
 package io.github.portlek.patty.tcp
 
-import io.github.portlek.patty.*
+import io.github.portlek.patty.Packet
+import io.github.portlek.patty.ProtocolListener
 import io.netty.buffer.ByteBuf
 
-class TcpProtocol(
-  override val header: PacketHeader,
-  override val encryptor: PacketEncryptor? = null,
-  override val sizer: PacketSizer,
-  override val listener: ProtocolListener<ByteBuf, Packet<ByteBuf>>? = null
-) : Protocol<ByteBuf>
+interface TcpProtocolListener : ProtocolListener<ByteBuf, Packet<ByteBuf>>

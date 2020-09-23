@@ -1,7 +1,5 @@
 /*
- * MIT License
- *
- * Copyright (c) 2020 Hasan Demirtaş
+ * Copyright (c) 2020 Shiru ka
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,10 +23,21 @@
 
 package io.github.portlek.patty
 
-import io.netty.util.ReferenceCounted
+import io.github.portlek.patty.packets.TestPacket
+import io.github.portlek.patty.tcp.TcpPacket
+import io.github.portlek.patty.tcp.TcpPacketRegistry
 
-interface PacketListener<O : ReferenceCounted, P : Packet<O>> {
-  fun onPacketError(throwable: Throwable): Boolean
+enum class Packets(
+  val id: Int,
+  val cls: Class<out TcpPacket>,
+  val state: ConnectionState,
+  val bound: ConnectionBound
+) {
+  TEST(0, TestPacket::class.java, ConnectionState.UNCONNECTED, ConnectionBound.SERVER);
 
-  fun onPacketReceived(packet: P)
+  companion object {
+    fun registerAll() {
+      values().forEach { TcpPacketRegistry.register(it.cls, it.state, it.bound, it.id) }
+    }
+  }
 }

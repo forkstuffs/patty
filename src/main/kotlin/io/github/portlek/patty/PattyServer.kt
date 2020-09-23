@@ -24,7 +24,6 @@
  */
 package io.github.portlek.patty
 
-import io.github.portlek.patty.tcp.TcpPacket
 import io.github.portlek.patty.tcp.TcpProtocol
 import io.github.portlek.patty.tcp.TcpServerInitializer
 import io.github.portlek.patty.udp.UdpInitializer
@@ -42,8 +41,6 @@ import io.netty.channel.epoll.EpollEventLoopGroup
 import io.netty.channel.epoll.EpollServerSocketChannel
 import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.DatagramPacket
-import io.netty.channel.socket.ServerSocketChannel
-import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioDatagramChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import io.netty.util.ReferenceCounted
@@ -62,7 +59,7 @@ class PattyServer<O : ReferenceCounted> private constructor(
   private var channel: Channel? = null
 
   fun bind(wait: Boolean = true) {
-    val future = if (ServerSocketChannel::class.java.isAssignableFrom(channelClass)) {
+    val future = if (ServerChannel::class.java.isAssignableFrom(channelClass)) {
       ServerBootstrap()
         .group(eventLoop)
         .channel(channelClass as Class<out ServerChannel>)
@@ -100,8 +97,8 @@ class PattyServer<O : ReferenceCounted> private constructor(
     }
 
     fun tcp(ip: String, port: Int, packetHeader: PacketHeader, packetEncryptor: PacketEncryptor? = null,
-            packetSizer: PacketSizer, packetListener: PacketListener<ByteBuf, Packet<ByteBuf>>? = null) =
-      PattyServer(ip, port, tcpChannel, TcpProtocol(packetHeader, packetEncryptor, packetSizer, packetListener))
+            packetSizer: PacketSizer, protocolListener: ProtocolListener<ByteBuf, Packet<ByteBuf>>? = null) =
+      PattyServer(ip, port, tcpChannel, TcpProtocol(packetHeader, packetEncryptor, packetSizer, protocolListener))
 
     fun tcp(ip: String, port: Int, protocol: TcpProtocol) = PattyServer(ip, port, tcpChannel, protocol)
   }
