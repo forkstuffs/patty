@@ -22,19 +22,34 @@
  * SOFTWARE.
  *
  */
+
 package io.github.portlek.patty
 
-object TestRunner {
-  @JvmStatic
-  fun main(args: Array<String>) {
-    PattyServer.tcp("127.0.0.1", 25565, TestPacketHeader(), TestPacketEncrypted(), TestPacketSized())
-      .whenServerBound { }
-      .whenServerClosing { }
-      .whenServerClosed { }
-      .whenSessionAdded { }
-      .whenSessionRemoved { }
-      .onPacketError { _, _ -> true }
-      .bind()
+import io.netty.buffer.ByteBuf
+
+class TestPacketHeader : PacketHeader {
+  override val isLengthVariable: Boolean
+    get() = TODO("Not yet implemented")
+  override val lengthSize: Int
+    get() = TODO("Not yet implemented")
+
+  override fun getLengthSize(length: Int): Int {
+    TODO("Not yet implemented")
+  }
+
+  override fun readLength(input: ByteBuf, available: Int): Int {
+    TODO("Not yet implemented")
+  }
+
+  override fun writeLength(output: ByteBuf, length: Int) {
+    TODO("Not yet implemented")
+  }
+
+  override fun readPacketId(input: ByteBuf): Int {
+    TODO("Not yet implemented")
+  }
+
+  override fun writePacketId(output: ByteBuf, packetId: Int) {
+    TODO("Not yet implemented")
   }
 }
-

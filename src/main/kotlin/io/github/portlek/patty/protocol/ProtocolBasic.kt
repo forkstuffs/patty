@@ -22,19 +22,16 @@
  * SOFTWARE.
  *
  */
-package io.github.portlek.patty
 
-object TestRunner {
-  @JvmStatic
-  fun main(args: Array<String>) {
-    PattyServer.tcp("127.0.0.1", 25565, TestPacketHeader(), TestPacketEncrypted(), TestPacketSized())
-      .whenServerBound { }
-      .whenServerClosing { }
-      .whenServerClosed { }
-      .whenSessionAdded { }
-      .whenSessionRemoved { }
-      .onPacketError { _, _ -> true }
-      .bind()
-  }
-}
+package io.github.portlek.patty.protocol
 
+import io.github.portlek.patty.PacketEncrypted
+import io.github.portlek.patty.PacketHeader
+import io.github.portlek.patty.PacketSized
+import io.github.portlek.patty.Protocol
+
+class ProtocolBasic(
+  override val packetHeader: PacketHeader,
+  override val packetEncrypted: PacketEncrypted,
+  override val packetSized: PacketSized
+) : Protocol

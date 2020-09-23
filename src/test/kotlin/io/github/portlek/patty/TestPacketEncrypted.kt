@@ -22,19 +22,23 @@
  * SOFTWARE.
  *
  */
+
 package io.github.portlek.patty
 
-object TestRunner {
-  @JvmStatic
-  fun main(args: Array<String>) {
-    PattyServer.tcp("127.0.0.1", 25565, TestPacketHeader(), TestPacketEncrypted(), TestPacketSized())
-      .whenServerBound { }
-      .whenServerClosing { }
-      .whenServerClosed { }
-      .whenSessionAdded { }
-      .whenSessionRemoved { }
-      .onPacketError { _, _ -> true }
-      .bind()
+class TestPacketEncrypted : PacketEncrypted {
+  override fun getDecryptOutputSize(length: Int): Int {
+    TODO("Not yet implemented")
+  }
+
+  override fun getEncryptOutputSize(length: Int): Int {
+    TODO("Not yet implemented")
+  }
+
+  override fun decrypt(input: ByteArray, inputOffset: Int, inputLength: Int, output: ByteArray, outputOffset: Int): Int {
+    TODO("Not yet implemented")
+  }
+
+  override fun encrypt(input: ByteArray, inputOffset: Int, inputLength: Int, output: ByteArray, outputOffset: Int): Int {
+    TODO("Not yet implemented")
   }
 }
-
