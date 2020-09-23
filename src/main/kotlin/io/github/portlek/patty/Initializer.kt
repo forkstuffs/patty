@@ -61,5 +61,4 @@ abstract class Initializer<C : Channel> : ChannelInitializer<C>() {
       }
     }
   }
-
 }

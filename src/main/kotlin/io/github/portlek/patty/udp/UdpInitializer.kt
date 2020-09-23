@@ -37,6 +37,5 @@ class UdpInitializer(
 ) : ChannelInitializer<DatagramChannel>() {
   override fun initChannel(channel: DatagramChannel) {
     val address = channel.remoteAddress()
-
   }
 }

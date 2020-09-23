@@ -50,5 +50,4 @@ class TcpServerInitializer(
       .addLast("codec", TcpPacketCodec(protocol, ConnectionBound.SERVER))
       .addLast("manager", TcpPacketManager(protocol))
   }
-
 }
