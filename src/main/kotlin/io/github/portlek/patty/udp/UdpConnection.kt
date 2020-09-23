@@ -25,7 +25,10 @@
 
 package io.github.portlek.patty.udp
 
-import io.github.portlek.patty.*
+import io.github.portlek.patty.Connection
+import io.github.portlek.patty.ConnectionBound
+import io.github.portlek.patty.Packet
+import io.github.portlek.patty.PattyServer
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.socket.DatagramPacket
 
@@ -37,6 +40,6 @@ class UdpConnection(
   override fun sendPacket(packet: Packet<DatagramPacket>) {
   }
 
-  override fun disconnect(reason: DisconnectReason) {
+  override fun disconnect(reason: String, cause: Throwable?) {
   }
 }
