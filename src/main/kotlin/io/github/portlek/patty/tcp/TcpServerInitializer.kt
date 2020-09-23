@@ -23,6 +23,24 @@
  *
  */
 
-package io.github.portlek.patty
+package io.github.portlek.patty.tcp
 
-interface PacketSized
+import io.github.portlek.patty.PattyServer
+import io.github.portlek.patty.Protocol
+import io.github.portlek.patty.tcp.pipline.TcpPacketEncryptor
+import io.github.portlek.patty.tcp.pipline.TcpPacketSizer
+import io.netty.channel.ChannelInitializer
+import io.netty.channel.ServerChannel
+
+class TcpServerInitializer(
+  private val server: PattyServer,
+  private val protocol: Protocol
+) : ChannelInitializer<ServerChannel>() {
+  override fun initChannel(channel: ServerChannel) {
+    val address = channel.remoteAddress()
+    channel.pipeline()
+      .addLast("encryptor", TcpPacketEncryptor(protocol))
+      .addLast("sizer", TcpPacketSizer(protocol))
+      .addLast("codec", TcpPacketCodec(protocol))
+  }
+}

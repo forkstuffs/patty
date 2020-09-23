@@ -23,20 +23,17 @@
  *
  */
 
-package io.github.portlek.patty.tcp
+package io.github.portlek.patty
 
-import io.github.portlek.patty.PattyServer
-import io.github.portlek.patty.Protocol
-import io.netty.channel.ChannelHandler
-import io.netty.channel.ChannelInitializer
-import io.netty.channel.ServerChannel
-
-class TcpInitializer(
-  private val server: PattyServer,
-  private val protocol: Protocol
-) : ChannelInitializer<ServerChannel>() {
-  override fun initChannel(channel: ServerChannel) {
-    val address = channel.remoteAddress()
-    channel.pipeline()
-  }
+enum class DisconnectReason {
+  CLOSED_BY_REMOTE_PEER,
+  SHUTTING_DOWN,
+  DISCONNECTED,
+  TIMED_OUT,
+  CONNECTION_REQUEST_FAILED,
+  ALREADY_CONNECTED,
+  NO_FREE_INCOMING_CONNECTIONS,
+  INCOMPATIBLE_PROTOCOL_VERSION,
+  IP_RECENTLY_CONNECTED,
+  BAD_PACKET
 }

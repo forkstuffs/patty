@@ -25,4 +25,4 @@
 
 package io.github.portlek.patty
 
-class TestPacketSized : PacketSized
+interface PacketSizer

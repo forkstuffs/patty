@@ -39,25 +39,4 @@ interface PacketHeader {
   fun readPacketId(input: ByteBuf): Int
 
   fun writePacketId(output: ByteBuf, packetId: Int)
-
-  class EmptyPacketHeader : PacketHeader {
-    override val isLengthVariable = false
-    override val lengthSize = 0
-
-    override fun getLengthSize(length: Int) = -1
-
-    override fun readLength(input: ByteBuf, available: Int) = -1
-
-    override fun writeLength(output: ByteBuf, length: Int) {
-    }
-
-    override fun readPacketId(input: ByteBuf) = -1
-
-    override fun writePacketId(output: ByteBuf, packetId: Int) {
-    }
-  }
-
-  companion object {
-    val EMPTY = EmptyPacketHeader()
-  }
 }

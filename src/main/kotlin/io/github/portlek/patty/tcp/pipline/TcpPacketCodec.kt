@@ -23,48 +23,49 @@
  *
  */
 
-package io.github.portlek.patty.tcp
+package io.github.portlek.patty.tcp.pipline
 
-import io.github.portlek.patty.Session
+import io.github.portlek.patty.Protocol
 import io.github.portlek.patty.packet.PacketOut
 import io.github.portlek.patty.packet.PacketRegistry
+import io.github.portlek.patty.tcp.TcpConnection
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 import io.netty.handler.codec.ByteToMessageCodec
 
 class TcpPacketCodec(
-  private val session: Session
+  private val protocol: Protocol
 ) : ByteToMessageCodec<PacketOut>() {
-  override fun encode(ctx: ChannelHandlerContext, packet: PacketOut, out: ByteBuf) {
-    val initial = out.writerIndex()
+  override fun encode(ctx: ChannelHandlerContext, packet: PacketOut, buf: ByteBuf) {
+    val initial = buf.readerIndex()
     try {
-      session.packetHeader.writePacketId(out, packet.id)
-      packet.write(out)
+      protocol.header.writePacketId(buf, packet.id)
+      packet.write(buf)
     } catch (t: Throwable) {
-      out.writerIndex(initial)
-      if (session.onPacketError(t)) {
+      buf.writerIndex(initial)
+      if (protocol.listener.onPacketError(t)) {
         throw t
       }
     }
   }
 
-  override fun decode(ctx: ChannelHandlerContext, input: ByteBuf, out: MutableList<Any>) {
-    val initial = input.readerIndex()
+  override fun decode(ctx: ChannelHandlerContext, buf: ByteBuf, out: MutableList<Any>) {
+    val initial = buf.readerIndex()
     try {
-      val packetId = session.packetHeader.readPacketId(input)
-      if (packetId == -1) {
-        input.readerIndex(initial)
+      val id = protocol.header.readPacketId(buf)
+      if (id == -1) {
+        buf.readerIndex(initial)
         return
       }
-      val packet = PacketRegistry.getPacket(session.state, session.bound, packetId.toByte()) ?: return
-      PacketRegistry.createPacket<TcpPacketIn>(packet).read(input, session)
-      if (input.readableBytes() > 0) {
-        throw IllegalStateException("Packet \"" + packet.javaClass.simpleName + "\" not fully read.")
+      val connection = TcpConnection.get(ctx)
+      PacketRegistry.getPacket(connection.state, )
+      if (buf.readableBytes() > 0) {
+        throw IllegalStateException ("Packet \"" + packet.getClass().getSimpleName() + "\" not fully read.")
       }
       out.add(packet)
     } catch (t: Throwable) {
-      input.readerIndex(input.readerIndex() + input.readableBytes())
-      if (session.onPacketError(t)) {
+      buf.readerIndex(buf.readerIndex() + buf.readableBytes())
+      if (!protocol.listener.onPacketError(t)) {
         throw t
       }
     }

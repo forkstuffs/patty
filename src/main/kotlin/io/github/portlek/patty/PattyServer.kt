@@ -25,7 +25,7 @@
 package io.github.portlek.patty
 
 import io.github.portlek.patty.protocol.ProtocolBasic
-import io.github.portlek.patty.tcp.TcpInitializer
+import io.github.portlek.patty.tcp.TcpServerInitializer
 import io.github.portlek.patty.udp.UdpInitializer
 import io.github.portlek.patty.util.PoolSpec
 import io.netty.bootstrap.Bootstrap
@@ -42,8 +42,6 @@ import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioDatagramChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
-import java.util.function.BiFunction
-import java.util.function.Consumer
 
 class PattyServer(
   private val ip: String,
@@ -56,43 +54,7 @@ class PattyServer(
   } else {
     NioEventLoopGroup(PoolSpec.UNCAUGHT_FACTORY)
   }
-  private var whenServerBound = Consumer<Session> { }
-  private var whenServerClosing = Consumer<Session> { }
-  private var whenServerClosed = Consumer<Session> { }
-  private var whenSessionAdded = Consumer<Session> { _ -> }
-  private var whenSessionRemoved = Consumer<Session> { _ -> }
-  private var onPacketError = BiFunction<Session, Throwable, Boolean> { _, _ -> true }
   private var channel: Channel? = null
-
-  fun whenServerBound(whenServerBound: Consumer<Session>): PattyServer {
-    this.whenServerBound = whenServerBound
-    return this
-  }
-
-  fun whenServerClosing(whenServerClosing: Consumer<Session>): PattyServer {
-    this.whenServerClosing = whenServerClosing
-    return this
-  }
-
-  fun whenServerClosed(whenServerClosed: Consumer<Session>): PattyServer {
-    this.whenServerClosed = whenServerClosed
-    return this
-  }
-
-  fun whenSessionAdded(whenSessionAdded: Consumer<Session>): PattyServer {
-    this.whenSessionAdded = whenSessionAdded
-    return this
-  }
-
-  fun whenSessionRemoved(whenSessionRemoved: Consumer<Session>): PattyServer {
-    this.whenSessionRemoved = whenSessionRemoved
-    return this
-  }
-
-  fun onPacketError(onPacketError: BiFunction<Session, Throwable, Boolean>): PattyServer {
-    this.onPacketError = onPacketError
-    return this
-  }
 
   fun bind(wait: Boolean = true) {
     val future = if (SocketChannel::class.java.isAssignableFrom(channelClass)) {
@@ -101,7 +63,7 @@ class PattyServer(
         .option(ChannelOption.TCP_NODELAY, false)
         .group(eventLoop)
         .channel(channelClass as Class<ServerChannel>)
-        .childHandler(TcpInitializer(this, protocol))
+        .childHandler(TcpServerInitializer(this, protocol))
         .bind(ip, port)
     } else {
       Bootstrap()
@@ -134,13 +96,13 @@ class PattyServer(
       NioDatagramChannel::class.java
     }
 
-    fun tcp(ip: String, port: Int, packetHeader: PacketHeader, packetEncrypted: PacketEncrypted,
-            packetSized: PacketSized) =
-      PattyServer(ip, port, tcpChannel, ProtocolBasic(packetHeader, packetEncrypted, packetSized))
+    fun tcp(ip: String, port: Int, packetHeader: PacketHeader, packetEncryptor: PacketEncryptor? = null,
+            packetSizer: PacketSizer) =
+      PattyServer(ip, port, tcpChannel, ProtocolBasic(packetHeader, packetEncryptor, packetSizer))
 
-    fun udp(ip: String, port: Int, packetHeader: PacketHeader, packetEncrypted: PacketEncrypted,
-            packetSized: PacketSized) =
-      PattyServer(ip, port, tcpChannel, ProtocolBasic(packetHeader, packetEncrypted, packetSized))
+    fun udp(ip: String, port: Int, packetHeader: PacketHeader, packetEncryptor: PacketEncryptor? = null,
+            packetSizer: PacketSizer) =
+      PattyServer(ip, port, tcpChannel, ProtocolBasic(packetHeader, packetEncryptor, packetSizer))
 
     fun tcp(ip: String, port: Int, protocol: Protocol) = PattyServer(ip, port, tcpChannel, protocol)
 

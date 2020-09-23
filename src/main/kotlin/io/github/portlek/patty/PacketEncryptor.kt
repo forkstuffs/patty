@@ -24,12 +24,12 @@
  */
 package io.github.portlek.patty
 
-import io.github.portlek.patty.packet.PacketBound
+interface PacketEncryptor {
+  fun getDecryptOutputSize(length: Int): Int
 
-interface Session {
-  val packetHeader: PacketHeader
-  val bound: PacketBound
-  var state: ConnectionState
+  fun getEncryptOutputSize(length: Int): Int
 
-  fun onPacketError(throwable: Throwable): Boolean
+  fun decrypt(input: ByteArray, inputOffset: Int, inputLength: Int, output: ByteArray, outputOffset: Int): Int
+
+  fun encrypt(input: ByteArray, inputOffset: Int, inputLength: Int, output: ByteArray, outputOffset: Int): Int
 }

@@ -25,9 +25,8 @@
 
 package io.github.portlek.patty.packet
 
-import io.github.portlek.patty.Session
 import io.netty.util.ReferenceCounted
 
 abstract class PacketIn<O : ReferenceCounted>(cls: Class<out Packet>) : Packet(cls) {
-  abstract fun read(packet: O, session: Session)
+  abstract fun read(packet: O)
 }

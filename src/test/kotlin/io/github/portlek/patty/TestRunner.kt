@@ -27,13 +27,7 @@ package io.github.portlek.patty
 object TestRunner {
   @JvmStatic
   fun main(args: Array<String>) {
-    PattyServer.tcp("127.0.0.1", 25565, TestPacketHeader(), TestPacketEncrypted(), TestPacketSized())
-      .whenServerBound { }
-      .whenServerClosing { }
-      .whenServerClosed { }
-      .whenSessionAdded { }
-      .whenSessionRemoved { }
-      .onPacketError { _, _ -> true }
+    PattyServer.tcp("127.0.0.1", 25565, TestPacketHeader(), TestPacketEncryptor(), TestPacketSizer())
       .bind()
   }
 }

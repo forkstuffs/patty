@@ -25,9 +25,20 @@
 
 package io.github.portlek.patty
 
-interface Protocol {
-  val encryptor: PacketEncryptor?
-  val sizer: PacketSizer
-  val header: PacketHeader
-  val listener: PacketListener
+class TestPacketEncryptor : PacketEncryptor {
+  override fun getDecryptOutputSize(length: Int): Int {
+    TODO("Not yet implemented")
+  }
+
+  override fun getEncryptOutputSize(length: Int): Int {
+    TODO("Not yet implemented")
+  }
+
+  override fun decrypt(input: ByteArray, inputOffset: Int, inputLength: Int, output: ByteArray, outputOffset: Int): Int {
+    TODO("Not yet implemented")
+  }
+
+  override fun encrypt(input: ByteArray, inputOffset: Int, inputLength: Int, output: ByteArray, outputOffset: Int): Int {
+    TODO("Not yet implemented")
+  }
 }

@@ -22,36 +22,7 @@
  * SOFTWARE.
  *
  */
+
 package io.github.portlek.patty
 
-interface PacketEncrypted {
-  fun getDecryptOutputSize(length: Int): Int
-
-  fun getEncryptOutputSize(length: Int): Int
-
-  fun decrypt(input: ByteArray, inputOffset: Int, inputLength: Int, output: ByteArray, outputOffset: Int): Int
-
-  fun encrypt(input: ByteArray, inputOffset: Int, inputLength: Int, output: ByteArray, outputOffset: Int): Int
-
-  class EmptyPacketEncrypted : PacketEncrypted {
-    override fun getDecryptOutputSize(length: Int): Int {
-      return 0
-    }
-
-    override fun getEncryptOutputSize(length: Int): Int {
-      return 0
-    }
-
-    override fun decrypt(input: ByteArray, inputOffset: Int, inputLength: Int, output: ByteArray, outputOffset: Int): Int {
-      return 0
-    }
-
-    override fun encrypt(input: ByteArray, inputOffset: Int, inputLength: Int, output: ByteArray, outputOffset: Int): Int {
-      return 0
-    }
-  }
-
-  companion object {
-    val EMPTY = EmptyPacketEncrypted()
-  }
-}
+class TestPacketSizer : PacketSizer

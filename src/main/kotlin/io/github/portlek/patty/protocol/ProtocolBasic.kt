@@ -25,13 +25,13 @@
 
 package io.github.portlek.patty.protocol
 
-import io.github.portlek.patty.PacketEncrypted
+import io.github.portlek.patty.PacketEncryptor
 import io.github.portlek.patty.PacketHeader
-import io.github.portlek.patty.PacketSized
+import io.github.portlek.patty.PacketSizer
 import io.github.portlek.patty.Protocol
 
 class ProtocolBasic(
-  override val packetHeader: PacketHeader,
-  override val packetEncrypted: PacketEncrypted,
-  override val packetSized: PacketSized
+  override val header: PacketHeader,
+  override val encryptor: PacketEncryptor?  = null,
+  override val sizer: PacketSizer
 ) : Protocol

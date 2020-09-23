@@ -25,20 +25,8 @@
 
 package io.github.portlek.patty
 
-class TestPacketEncrypted : PacketEncrypted {
-  override fun getDecryptOutputSize(length: Int): Int {
-    TODO("Not yet implemented")
-  }
+interface PacketListener {
 
-  override fun getEncryptOutputSize(length: Int): Int {
-    TODO("Not yet implemented")
-  }
+  fun onPacketError(throwable: Throwable): Boolean
 
-  override fun decrypt(input: ByteArray, inputOffset: Int, inputLength: Int, output: ByteArray, outputOffset: Int): Int {
-    TODO("Not yet implemented")
-  }
-
-  override fun encrypt(input: ByteArray, inputOffset: Int, inputLength: Int, output: ByteArray, outputOffset: Int): Int {
-    TODO("Not yet implemented")
-  }
 }
