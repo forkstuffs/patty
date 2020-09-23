@@ -23,7 +23,7 @@
  *
  */
 
-package io.github.portlek.patty.tcp
+package io.github.portlek.patty
 
 import io.netty.channel.Channel
 import io.netty.channel.ChannelInitializer
