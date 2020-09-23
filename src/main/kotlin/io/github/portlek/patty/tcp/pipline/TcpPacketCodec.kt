@@ -26,25 +26,29 @@
 package io.github.portlek.patty.tcp.pipline
 
 import io.github.portlek.patty.Protocol
-import io.github.portlek.patty.packet.PacketOut
-import io.github.portlek.patty.packet.PacketRegistry
+import io.github.portlek.patty.packet.ConnectionBound
 import io.github.portlek.patty.tcp.TcpConnection
+import io.github.portlek.patty.tcp.TcpPacket
+import io.github.portlek.patty.tcp.TcpPacketRegistry
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 import io.netty.handler.codec.ByteToMessageCodec
 
 class TcpPacketCodec(
-  private val protocol: Protocol
-) : ByteToMessageCodec<PacketOut>() {
-  override fun encode(ctx: ChannelHandlerContext, packet: PacketOut, buf: ByteBuf) {
+  private val protocol: Protocol<ByteBuf>,
+  private val bound: ConnectionBound
+) : ByteToMessageCodec<TcpPacket>() {
+  override fun encode(ctx: ChannelHandlerContext, packet: TcpPacket, buf: ByteBuf) {
     val initial = buf.readerIndex()
     try {
       protocol.header.writePacketId(buf, packet.id)
       packet.write(buf)
     } catch (t: Throwable) {
       buf.writerIndex(initial)
-      if (protocol.listener.onPacketError(t)) {
-        throw t
+      protocol.listener?.also {
+        if (it.onPacketError(t)) {
+          throw t
+        }
       }
     }
   }
@@ -57,16 +61,22 @@ class TcpPacketCodec(
         buf.readerIndex(initial)
         return
       }
-      val connection = TcpConnection.get(ctx)
-      PacketRegistry.getPacket(connection.state, )
+      val connection = TcpConnection.get(ctx, bound)
+      val packet = TcpPacketRegistry.getPacket(connection.state, connection.bound, id)
+      if (packet == null) {
+        buf.readerIndex(initial)
+        return
+      }
       if (buf.readableBytes() > 0) {
-        throw IllegalStateException ("Packet \"" + packet.getClass().getSimpleName() + "\" not fully read.")
+        throw IllegalStateException("Packet \"" + packet::class.java.simpleName + "\" not fully read.")
       }
       out.add(packet)
     } catch (t: Throwable) {
       buf.readerIndex(buf.readerIndex() + buf.readableBytes())
-      if (!protocol.listener.onPacketError(t)) {
-        throw t
+      protocol.listener?.also {
+        if (it.onPacketError(t)) {
+          throw t
+        }
       }
     }
   }

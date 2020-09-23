@@ -27,20 +27,59 @@ package io.github.portlek.patty.tcp
 
 import io.github.portlek.patty.PattyServer
 import io.github.portlek.patty.Protocol
+import io.github.portlek.patty.packet.ConnectionBound
+import io.github.portlek.patty.tcp.pipline.TcpPacketCodec
 import io.github.portlek.patty.tcp.pipline.TcpPacketEncryptor
+import io.github.portlek.patty.tcp.pipline.TcpPacketManager
 import io.github.portlek.patty.tcp.pipline.TcpPacketSizer
+import io.netty.buffer.ByteBuf
+import io.netty.channel.Channel
 import io.netty.channel.ChannelInitializer
 import io.netty.channel.ServerChannel
+import io.netty.handler.timeout.ReadTimeoutHandler
+import io.netty.handler.timeout.WriteTimeoutHandler
 
 class TcpServerInitializer(
-  private val server: PattyServer,
-  private val protocol: Protocol
+  private val server: PattyServer<ByteBuf>,
+  private val protocol: Protocol<ByteBuf>
 ) : ChannelInitializer<ServerChannel>() {
   override fun initChannel(channel: ServerChannel) {
     val address = channel.remoteAddress()
+    refreshReadTimeoutHandler(channel)
+    refreshWriteTimeoutHandler(channel)
     channel.pipeline()
       .addLast("encryptor", TcpPacketEncryptor(protocol))
       .addLast("sizer", TcpPacketSizer(protocol))
-      .addLast("codec", TcpPacketCodec(protocol))
+      .addLast("codec", TcpPacketCodec(protocol, ConnectionBound.SERVER))
+      .addLast("manager", TcpPacketManager(protocol))
   }
+
+  private fun refreshReadTimeoutHandler(channel: Channel) {
+    if (readTimeout <= 0) {
+      if (channel.pipeline()["readTimeout"] != null) {
+        channel.pipeline().remove("readTimeout")
+      }
+    } else {
+      if (channel.pipeline()["readTimeout"] == null) {
+        channel.pipeline().addFirst("readTimeout", ReadTimeoutHandler(readTimeout))
+      } else {
+        channel.pipeline().replace("readTimeout", "readTimeout", ReadTimeoutHandler(readTimeout))
+      }
+    }
+  }
+
+  private fun refreshWriteTimeoutHandler(channel: Channel) {
+    if (writeTimeout <= 0) {
+      if (channel.pipeline()["writeTimeout"] != null) {
+        channel.pipeline().remove("writeTimeout")
+      }
+    } else {
+      if (channel.pipeline()["writeTimeout"] == null) {
+        channel.pipeline().addFirst("writeTimeout", WriteTimeoutHandler(writeTimeout))
+      } else {
+        channel.pipeline().replace("writeTimeout", "writeTimeout", WriteTimeoutHandler(writeTimeout))
+      }
+    }
+  }
+
 }

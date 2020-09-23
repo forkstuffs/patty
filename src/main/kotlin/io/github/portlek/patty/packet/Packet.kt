@@ -25,6 +25,13 @@
 
 package io.github.portlek.patty.packet
 
-open class Packet(cls: Class<out Packet>) {
-  val id = PacketRegistry.getPacketId(PacketRegistry.getPacketId(cls))
+import io.netty.buffer.ByteBuf
+import io.netty.util.ReferenceCounted
+
+abstract class Packet<O : ReferenceCounted>(cls: Class<out Packet<O>>) {
+  abstract fun read(packet: O)
+
+  abstract fun write(buffer: ByteBuf)
+
+  open fun hasPriority() = false
 }

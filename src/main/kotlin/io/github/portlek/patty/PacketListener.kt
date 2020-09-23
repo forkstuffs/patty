@@ -25,8 +25,11 @@
 
 package io.github.portlek.patty
 
-interface PacketListener {
+import io.github.portlek.patty.packet.Packet
+import io.netty.util.ReferenceCounted
 
+interface PacketListener<O : ReferenceCounted> {
   fun onPacketError(throwable: Throwable): Boolean
 
+  fun onPacketReceived(packet: Packet<O>)
 }

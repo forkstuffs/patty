@@ -23,17 +23,12 @@
  *
  */
 
-package io.github.portlek.patty.packet
+package io.github.portlek.patty.tcp.pipline
 
-enum class PacketBound {
-  CLIENT, SERVER;
+import io.github.portlek.patty.PacketManager
+import io.github.portlek.patty.Protocol
+import io.netty.buffer.ByteBuf
 
-  companion object {
-    fun of(cls: Class<out Packet>) =
-      if (cls.superclass == PacketIn::class.java) {
-        SERVER
-      } else {
-        CLIENT
-      }
-  }
-}
+class TcpPacketManager(
+  protocol: Protocol<ByteBuf>
+) : PacketManager<ByteBuf>(protocol)

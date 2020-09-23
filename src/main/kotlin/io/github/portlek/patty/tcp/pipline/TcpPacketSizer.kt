@@ -32,7 +32,7 @@ import io.netty.channel.ChannelHandlerContext
 import io.netty.handler.codec.ByteToMessageCodec
 
 class TcpPacketSizer(
-  private val protocol: Protocol
+  private val protocol: Protocol<ByteBuf>
 ) : ByteToMessageCodec<ByteBuf>() {
   override fun encode(ctx: ChannelHandlerContext, msg: ByteBuf, out: ByteBuf) {
     val length = msg.readableBytes()

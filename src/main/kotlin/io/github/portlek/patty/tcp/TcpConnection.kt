@@ -27,20 +27,22 @@ package io.github.portlek.patty.tcp
 
 import io.github.portlek.patty.ConnectionState
 import io.github.portlek.patty.DisconnectReason
+import io.github.portlek.patty.packet.ConnectionBound
 import io.netty.channel.ChannelFuture
 import io.netty.channel.ChannelFutureListener
 import io.netty.channel.ChannelHandlerContext
 import java.net.SocketAddress
 
 class TcpConnection(
-  ctx: ChannelHandlerContext
+  ctx: ChannelHandlerContext,
+  val bound: ConnectionBound
 ) {
   companion object {
     private val CONNECTIONS = HashMap<SocketAddress, TcpConnection>()
 
-    fun get(ctx: ChannelHandlerContext) =
+    fun get(ctx: ChannelHandlerContext, bound: ConnectionBound) =
       CONNECTIONS.getOrElse(ctx.channel().remoteAddress()) {
-        TcpConnection(ctx)
+        TcpConnection(ctx, bound)
       }
   }
 

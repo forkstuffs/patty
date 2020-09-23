@@ -23,10 +23,14 @@
  *
  */
 
-package io.github.portlek.patty.packet
+package io.github.portlek.patty.tcp
 
-import io.netty.util.ReferenceCounted
+import io.github.portlek.patty.*
+import io.netty.buffer.ByteBuf
 
-abstract class PacketIn<O : ReferenceCounted>(cls: Class<out Packet>) : Packet(cls) {
-  abstract fun read(packet: O)
-}
+class TcpProtocol(
+  override val header: PacketHeader,
+  override val encryptor: PacketEncryptor? = null,
+  override val sizer: PacketSizer,
+  override val listener: PacketListener<ByteBuf>? = null
+) : Protocol<ByteBuf>

@@ -23,22 +23,23 @@
  *
  */
 
-package io.github.portlek.patty.packet
+package io.github.portlek.patty.tcp
 
 import io.github.portlek.patty.ConnectionState
+import io.github.portlek.patty.packet.ConnectionBound
 import java.lang.reflect.Constructor
 import java.util.*
 
-object PacketRegistry {
-  private val CTORS = HashMap<Class<out Packet>, Constructor<out Packet>>()
-  private val PACKET_IDS = HashMap<Class<out Packet>, Int>()
-  private val PACKETS = HashMap<Int, Class<out Packet>>()
+object TcpPacketRegistry {
+  private val CTORS = HashMap<Class<out TcpPacket>, Constructor<out TcpPacket>>()
+  private val PACKET_IDS = HashMap<Class<out TcpPacket>, Int>()
+  private val PACKETS = HashMap<Int, Class<out TcpPacket>>()
 
-  fun <T : Packet> createPacket(cls: Class<out Packet>) = CTORS[cls]?.newInstance() as T
+  fun <T : TcpPacket> createPacket(cls: Class<out TcpPacket>) = CTORS[cls]?.newInstance() as T
 
-  fun getPacket(state: ConnectionState, bound: PacketBound, id: Byte) = PACKETS[shift(state, bound, id)]
+  fun getPacket(state: ConnectionState, bound: ConnectionBound, id: Int) = PACKETS[shift(state, bound, id)]
 
-  fun getPacketId(cls: Class<out Packet>): Int {
+  fun getPacketId(cls: Class<out TcpPacket>): Int {
     val identifier = PACKET_IDS.getOrDefault(cls, -1)
     if (identifier != -1) {
       return identifier
@@ -50,19 +51,19 @@ object PacketRegistry {
 
   fun getPacketState(info: Int) = ConnectionState.values()[info shl 27 and 0xf]
 
-  fun getPacketBound(info: Int) = PacketBound.values()[info shl 31 and 0x1]
+  fun getPacketBound(info: Int) = ConnectionBound.values()[info shl 31 and 0x1]
 
-  fun register(cls: Class<out Packet>, state: ConnectionState, bound: PacketBound, id: Byte) {
+  fun register(cls: Class<out TcpPacket>, state: ConnectionState, bound: ConnectionBound, id: Int) {
     val identifier = shift(state, bound, id)
     PACKET_IDS[cls] = identifier
-    if (bound == PacketBound.SERVER) {
+    if (bound == ConnectionBound.SERVER) {
       PACKETS[identifier] = cls
       CTORS[cls] = cls.getDeclaredConstructor()
     }
   }
 
-  private fun shift(state: ConnectionState, bound: PacketBound, id: Byte): Int {
-    var identifier = id.toInt()
+  private fun shift(state: ConnectionState, bound: ConnectionBound, id: Int): Int {
+    var identifier = id
     identifier = identifier or (state.ordinal shl 27)
     identifier = identifier or (bound.ordinal shl 31)
     return identifier

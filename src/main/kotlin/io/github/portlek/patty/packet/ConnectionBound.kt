@@ -25,8 +25,6 @@
 
 package io.github.portlek.patty.packet
 
-import io.netty.buffer.ByteBuf
-
-abstract class PacketOut(cls: Class<out Packet>) : Packet(cls) {
-  abstract fun write(buffer: ByteBuf)
+enum class ConnectionBound {
+  CLIENT, SERVER;
 }

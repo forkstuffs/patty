@@ -24,12 +24,13 @@
  */
 package io.github.portlek.patty
 
-import io.github.portlek.patty.protocol.ProtocolBasic
+import io.github.portlek.patty.tcp.TcpProtocol
 import io.github.portlek.patty.tcp.TcpServerInitializer
 import io.github.portlek.patty.udp.UdpInitializer
 import io.github.portlek.patty.util.PoolSpec
 import io.netty.bootstrap.Bootstrap
 import io.netty.bootstrap.ServerBootstrap
+import io.netty.buffer.ByteBuf
 import io.netty.channel.Channel
 import io.netty.channel.ChannelFutureListener
 import io.netty.channel.ChannelOption
@@ -39,15 +40,17 @@ import io.netty.channel.epoll.EpollDatagramChannel
 import io.netty.channel.epoll.EpollEventLoopGroup
 import io.netty.channel.epoll.EpollServerSocketChannel
 import io.netty.channel.nio.NioEventLoopGroup
+import io.netty.channel.socket.DatagramPacket
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioDatagramChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
+import io.netty.util.ReferenceCounted
 
-class PattyServer(
+class PattyServer<O : ReferenceCounted> private constructor(
   private val ip: String,
   private val port: Int,
   private val channelClass: Class<out Channel>,
-  private val protocol: Protocol
+  private val protocol: Protocol<O>
 ) {
   private val eventLoop = if (Epoll.isAvailable()) {
     EpollEventLoopGroup(PoolSpec.UNCAUGHT_FACTORY)
@@ -62,15 +65,15 @@ class PattyServer(
         .option(ChannelOption.IP_TOS, 0x18)
         .option(ChannelOption.TCP_NODELAY, false)
         .group(eventLoop)
-        .channel(channelClass as Class<ServerChannel>)
-        .childHandler(TcpServerInitializer(this, protocol))
+        .channel(channelClass as Class<out ServerChannel>)
+        .childHandler(TcpServerInitializer(this as PattyServer<ByteBuf>, protocol))
         .bind(ip, port)
     } else {
       Bootstrap()
         .option(ChannelOption.SO_BROADCAST, true)
         .group(eventLoop)
         .channel(channelClass)
-        .handler(UdpInitializer(this, protocol))
+        .handler(UdpInitializer(this as PattyServer<DatagramPacket>, protocol))
         .bind(ip, port)
     }
     if (wait) {
@@ -98,14 +101,8 @@ class PattyServer(
 
     fun tcp(ip: String, port: Int, packetHeader: PacketHeader, packetEncryptor: PacketEncryptor? = null,
             packetSizer: PacketSizer) =
-      PattyServer(ip, port, tcpChannel, ProtocolBasic(packetHeader, packetEncryptor, packetSizer))
+      PattyServer(ip, port, tcpChannel, TcpProtocol(packetHeader, packetEncryptor, packetSizer))
 
-    fun udp(ip: String, port: Int, packetHeader: PacketHeader, packetEncryptor: PacketEncryptor? = null,
-            packetSizer: PacketSizer) =
-      PattyServer(ip, port, tcpChannel, ProtocolBasic(packetHeader, packetEncryptor, packetSizer))
-
-    fun tcp(ip: String, port: Int, protocol: Protocol) = PattyServer(ip, port, tcpChannel, protocol)
-
-    fun udp(ip: String, port: Int, protocol: Protocol) = PattyServer(ip, port, udpChannel, protocol)
+    fun tcp(ip: String, port: Int, protocol: TcpProtocol) = PattyServer(ip, port, tcpChannel, protocol)
   }
 }

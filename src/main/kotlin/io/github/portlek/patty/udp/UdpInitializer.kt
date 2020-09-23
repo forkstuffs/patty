@@ -30,10 +30,11 @@ import io.github.portlek.patty.Protocol
 import io.netty.channel.ChannelHandler
 import io.netty.channel.ChannelInitializer
 import io.netty.channel.socket.DatagramChannel
+import io.netty.channel.socket.DatagramPacket
 
 class UdpInitializer(
-  private val server: PattyServer,
-  private val protocol: Protocol
+  private val server: PattyServer<DatagramPacket>,
+  private val protocol: Protocol<DatagramPacket>
 ) : ChannelInitializer<DatagramChannel>() {
   override fun initChannel(channel: DatagramChannel) {
     val address = channel.remoteAddress()

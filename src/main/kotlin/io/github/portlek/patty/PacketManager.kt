@@ -23,15 +23,24 @@
  *
  */
 
-package io.github.portlek.patty.protocol
+package io.github.portlek.patty
 
-import io.github.portlek.patty.PacketEncryptor
-import io.github.portlek.patty.PacketHeader
-import io.github.portlek.patty.PacketSizer
-import io.github.portlek.patty.Protocol
+import io.github.portlek.patty.packet.Packet
+import io.netty.channel.ChannelHandlerContext
+import io.netty.channel.SimpleChannelInboundHandler
+import io.netty.util.ReferenceCounted
+import java.util.concurrent.LinkedBlockingQueue
 
-class ProtocolBasic(
-  override val header: PacketHeader,
-  override val encryptor: PacketEncryptor?  = null,
-  override val sizer: PacketSizer
-) : Protocol
+abstract class PacketManager<O : ReferenceCounted>(
+  protected val protocol: Protocol<O>
+) : SimpleChannelInboundHandler<Packet<O>>() {
+  private val packets = LinkedBlockingQueue<Packet<O>>()
+
+  override fun channelRead0(ctx: ChannelHandlerContext, packet: Packet<O>) {
+    if (packet.hasPriority()) {
+      protocol.listener?.onPacketReceived(packet)
+    } else {
+      packets.put(packet)
+    }
+  }
+}
