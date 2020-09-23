@@ -33,16 +33,12 @@ import io.github.portlek.patty.tcp.pipeline.TcpPacketEncryptor
 import io.github.portlek.patty.tcp.pipeline.TcpPacketManager
 import io.github.portlek.patty.tcp.pipeline.TcpPacketSizer
 import io.netty.buffer.ByteBuf
-import io.netty.channel.Channel
-import io.netty.channel.ChannelInitializer
 import io.netty.channel.ServerChannel
-import io.netty.handler.timeout.ReadTimeoutHandler
-import io.netty.handler.timeout.WriteTimeoutHandler
 
 class TcpServerInitializer(
   private val server: PattyServer<ByteBuf>,
   private val protocol: Protocol<ByteBuf>
-) : ChannelInitializer<ServerChannel>() {
+) : Initializer<ServerChannel>() {
   override fun initChannel(channel: ServerChannel) {
     val address = channel.remoteAddress()
     refreshReadTimeoutHandler(channel)
@@ -52,34 +48,6 @@ class TcpServerInitializer(
       .addLast("sizer", TcpPacketSizer(protocol))
       .addLast("codec", TcpPacketCodec(protocol, ConnectionBound.SERVER))
       .addLast("manager", TcpPacketManager(protocol))
-  }
-
-  private fun refreshReadTimeoutHandler(channel: Channel) {
-    if (readTimeout <= 0) {
-      if (channel.pipeline()["readTimeout"] != null) {
-        channel.pipeline().remove("readTimeout")
-      }
-    } else {
-      if (channel.pipeline()["readTimeout"] == null) {
-        channel.pipeline().addFirst("readTimeout", ReadTimeoutHandler(readTimeout))
-      } else {
-        channel.pipeline().replace("readTimeout", "readTimeout", ReadTimeoutHandler(readTimeout))
-      }
-    }
-  }
-
-  private fun refreshWriteTimeoutHandler(channel: Channel) {
-    if (writeTimeout <= 0) {
-      if (channel.pipeline()["writeTimeout"] != null) {
-        channel.pipeline().remove("writeTimeout")
-      }
-    } else {
-      if (channel.pipeline()["writeTimeout"] == null) {
-        channel.pipeline().addFirst("writeTimeout", WriteTimeoutHandler(writeTimeout))
-      } else {
-        channel.pipeline().replace("writeTimeout", "writeTimeout", WriteTimeoutHandler(writeTimeout))
-      }
-    }
   }
 
 }
