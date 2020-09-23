@@ -26,6 +26,7 @@
 package io.github.portlek.patty.tcp
 
 import io.github.portlek.patty.ConnectionBound
+import io.github.portlek.patty.Initializer
 import io.github.portlek.patty.PattyServer
 import io.github.portlek.patty.Protocol
 import io.github.portlek.patty.tcp.pipeline.TcpPacketCodec
