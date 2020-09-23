@@ -29,11 +29,6 @@ import io.github.portlek.patty.tcp.TcpProtocolListener
 import io.netty.buffer.ByteBuf
 
 class TestProtocolListener : TcpProtocolListener {
-  override fun onPacketError(throwable: Throwable): Boolean {
-    TODO("Not yet implemented")
-  }
-
   override fun onPacketReceived(packet: Packet<ByteBuf>) {
-    TODO("Not yet implemented")
   }
 }

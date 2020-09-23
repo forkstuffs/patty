@@ -67,6 +67,7 @@ class TcpPacketCodec(
         buf.readerIndex(initial)
         return
       }
+      TcpPacketRegistry.createPacket<TcpPacket>(packet).read(buf)
       if (buf.readableBytes() > 0) {
         throw IllegalStateException("Packet \"" + packet::class.java.simpleName + "\" not fully read.")
       }

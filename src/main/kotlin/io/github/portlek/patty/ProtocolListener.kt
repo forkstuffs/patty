@@ -28,7 +28,7 @@ package io.github.portlek.patty
 import io.netty.util.ReferenceCounted
 
 interface ProtocolListener<O : ReferenceCounted, P : Packet<O>> {
-  fun onPacketError(throwable: Throwable): Boolean
+  fun onPacketError(throwable: Throwable) = true
 
   fun onPacketReceived(packet: P)
 }
