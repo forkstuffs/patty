@@ -25,6 +25,7 @@
 package io.github.portlek.patty
 
 import io.github.portlek.patty.tcp.TcpInitializer
+import io.github.portlek.patty.udp.UdpInitializer
 import io.github.portlek.patty.util.PoolSpec
 import io.netty.bootstrap.Bootstrap
 import io.netty.bootstrap.ServerBootstrap
@@ -87,11 +88,15 @@ class PattyServer(
   fun bind(wait: Boolean = true) {
     val future = if (channelClass is SocketChannel) {
       ServerBootstrap()
+        .group(eventLoop)
         .channel(channelClass as Class<out ServerChannel>)
         .childHandler(TcpInitializer(this))
         .bind()
     } else {
       Bootstrap()
+        .group(eventLoop)
+        .channel(channelClass)
+        .handler(UdpInitializer(this))
         .bind()
     }
     if (wait) {
