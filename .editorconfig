@@ -3,10 +3,10 @@ indent_size = 2
 tab_width = 2
 ij_continuation_indent_size = 2
 
-[{*.pom, *.xml}]
+[*.xml]
 ij_xml_keep_blank_lines = 1
 
-[{*.kt, *.kts}]
+[*.kt]
 ij_kotlin_blank_lines_after_class_header = 0
 ij_kotlin_blank_lines_around_block_when_branches = 0
 ij_kotlin_blank_lines_before_declaration_with_comment_or_annotation_on_separate_line = 1
