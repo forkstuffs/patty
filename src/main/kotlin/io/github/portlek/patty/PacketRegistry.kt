@@ -1,5 +1,7 @@
 /*
- * Copyright (c) 2020 Shiru ka
+ * MIT License
+ *
+ * Copyright (c) 2020 Hasan Demirtaş
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,19 +25,34 @@
 
 package io.github.portlek.patty
 
-import io.github.portlek.patty.packets.TestPacket
+import io.github.portlek.patty.Packet
 import io.github.portlek.patty.tcp.TcpPacket
-import io.github.portlek.patty.PacketRegistry
+import io.netty.util.ReferenceCounted
+import java.lang.reflect.Constructor
+import java.util.*
 
-enum class Packets(
-  val id: Int,
-  val cls: Class<out TcpPacket>
-) {
-  TEST(0, TestPacket::class.java);
+object PacketRegistry {
+  private val CTORS = HashMap<Class<out Packet<*>>, Constructor<out Packet<*>>>()
+  private val PACKET_IDS = HashMap<Class<out Packet<*>>, Int>()
+  private val PACKETS = HashMap<Int, Class<out Packet<*>>>()
 
-  companion object {
-    fun registerAll() {
-      values().forEach { PacketRegistry.register(it.cls, it.id) }
+  fun <O: ReferenceCounted, P : Packet<O>> createPacket(cls: Class<out Packet<O>>) = CTORS[cls]?.newInstance() as P
+
+  fun getPacket(id: Int) = PACKETS[id]
+
+  fun getPacketId(cls: Class<out Packet<*>>): Int {
+    val identifier = PACKET_IDS.getOrDefault(cls, -1)
+    if (identifier != -1) {
+      return identifier
     }
+    throw IllegalArgumentException(cls.simpleName + " is not registered")
+  }
+
+  fun getPacketId(info: Int) = info and 0x7ffffff
+
+  fun register(cls: Class<out TcpPacket>, id: Int) {
+    PACKET_IDS[cls] = id
+    PACKETS[id] = cls
+    CTORS[cls] = cls.getDeclaredConstructor()
   }
 }

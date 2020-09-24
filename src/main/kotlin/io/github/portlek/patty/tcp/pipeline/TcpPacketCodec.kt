@@ -28,7 +28,7 @@ package io.github.portlek.patty.tcp.pipeline
 import io.github.portlek.patty.Connection
 import io.github.portlek.patty.Patty
 import io.github.portlek.patty.tcp.TcpPacket
-import io.github.portlek.patty.tcp.TcpPacketRegistry
+import io.github.portlek.patty.PacketRegistry
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 import io.netty.handler.codec.ByteToMessageCodec
@@ -62,12 +62,12 @@ class TcpPacketCodec(
         buf.readerIndex(initial)
         return
       }
-      val packet = TcpPacketRegistry.getPacket(id)
+      val packet = PacketRegistry.getPacket(id)
       if (packet == null) {
         buf.readerIndex(initial)
         return
       }
-      TcpPacketRegistry.createPacket<TcpPacket>(packet).read(buf, connection)
+      PacketRegistry.createPacket<TcpPacket>(packet).read(buf, connection)
       if (buf.readableBytes() > 0) {
         throw IllegalStateException("Packet \"" + packet::class.java.simpleName + "\" not fully read.")
       }

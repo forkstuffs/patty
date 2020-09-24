@@ -25,31 +25,8 @@
 
 package io.github.portlek.patty.tcp
 
-import java.lang.reflect.Constructor
-import java.util.*
+import io.github.portlek.patty.SessionListener
+import io.netty.buffer.ByteBuf
 
-object TcpPacketRegistry {
-  private val CTORS = HashMap<Class<out TcpPacket>, Constructor<out TcpPacket>>()
-  private val PACKET_IDS = HashMap<Class<out TcpPacket>, Int>()
-  private val PACKETS = HashMap<Int, Class<out TcpPacket>>()
-
-  fun <T : TcpPacket> createPacket(cls: Class<out TcpPacket>) = CTORS[cls]?.newInstance() as T
-
-  fun getPacket(id: Int) = PACKETS[id]
-
-  fun getPacketId(cls: Class<out TcpPacket>): Int {
-    val identifier = PACKET_IDS.getOrDefault(cls, -1)
-    if (identifier != -1) {
-      return identifier
-    }
-    throw IllegalArgumentException(cls.simpleName + " is not registered")
-  }
-
-  fun getPacketId(info: Int) = info and 0x7ffffff
-
-  fun register(cls: Class<out TcpPacket>, id: Int) {
-    PACKET_IDS[cls] = id
-    PACKETS[id] = cls
-    CTORS[cls] = cls.getDeclaredConstructor()
-  }
+interface TcpSessionListener : SessionListener<ByteBuf> {
 }
