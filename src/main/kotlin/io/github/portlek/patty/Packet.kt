@@ -24,7 +24,6 @@
  */
 package io.github.portlek.patty
 
-import io.github.portlek.patty.PacketRegistry
 import io.netty.buffer.ByteBuf
 import io.netty.util.ReferenceCounted
 

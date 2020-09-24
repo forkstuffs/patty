@@ -33,7 +33,7 @@ interface SessionListener<O : ReferenceCounted> {
 
   fun packetSent(event: Packet<O>)
 
-  fun packetError(event: Packet<O>, throwable: Throwable, connection: Connection<O>)
+  fun packetError(throwable: Throwable, connection: Connection<O>): Boolean
 
   fun connected(connection: Connection<O>)
 

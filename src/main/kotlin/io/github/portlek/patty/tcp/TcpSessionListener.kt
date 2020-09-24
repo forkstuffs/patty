@@ -28,5 +28,4 @@ package io.github.portlek.patty.tcp
 import io.github.portlek.patty.SessionListener
 import io.netty.buffer.ByteBuf
 
-interface TcpSessionListener : SessionListener<ByteBuf> {
-}
+interface TcpSessionListener : SessionListener<ByteBuf>

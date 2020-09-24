@@ -25,7 +25,6 @@
 
 package io.github.portlek.patty
 
-import io.github.portlek.patty.Packet
 import io.github.portlek.patty.tcp.TcpPacket
 import io.netty.util.ReferenceCounted
 import java.lang.reflect.Constructor
@@ -36,7 +35,7 @@ object PacketRegistry {
   private val PACKET_IDS = HashMap<Class<out Packet<*>>, Int>()
   private val PACKETS = HashMap<Int, Class<out Packet<*>>>()
 
-  fun <O: ReferenceCounted, P : Packet<O>> createPacket(cls: Class<out Packet<O>>) = CTORS[cls]?.newInstance() as P
+  fun <O : ReferenceCounted, P : Packet<O>> createPacket(cls: Class<out Packet<O>>) = CTORS[cls]?.newInstance() as P
 
   fun getPacket(id: Int) = PACKETS[id]
 
