@@ -24,20 +24,18 @@
  */
 package io.github.portlek.patty
 
-import io.netty.util.ReferenceCounted
+interface SessionListener {
+  fun packetReceived(packet: Packet, connection: Connection)
 
-interface SessionListener<O : ReferenceCounted> {
-  fun packetReceived(event: Packet<O>)
+  fun packetSending(packet: Packet, connection: Connection): Boolean = true
 
-  fun packetSending(event: Packet<O>)
+  fun packetSent(packet: Packet, connection: Connection)
 
-  fun packetSent(event: Packet<O>)
+  fun packetError(throwable: Throwable, connection: Connection): Boolean = true
 
-  fun packetError(throwable: Throwable, connection: Connection<O>): Boolean
+  fun connected(connection: Connection)
 
-  fun connected(connection: Connection<O>)
+  fun disconnecting(connection: Connection, reason: String, cause: Throwable? = null)
 
-  fun disconnecting(connection: Connection<O>)
-
-  fun disconnected(connection: Connection<O>)
+  fun disconnected(connection: Connection, reason: String, cause: Throwable? = null)
 }

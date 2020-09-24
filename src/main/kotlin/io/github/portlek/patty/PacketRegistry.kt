@@ -25,21 +25,20 @@
 
 package io.github.portlek.patty
 
-import io.github.portlek.patty.tcp.TcpPacket
 import io.netty.util.ReferenceCounted
 import java.lang.reflect.Constructor
 import java.util.*
 
 object PacketRegistry {
-  private val CTORS = HashMap<Class<out Packet<*>>, Constructor<out Packet<*>>>()
-  private val PACKET_IDS = HashMap<Class<out Packet<*>>, Int>()
-  private val PACKETS = HashMap<Int, Class<out Packet<*>>>()
+  private val CTORS = HashMap<Class<out Packet>, Constructor<out Packet>>()
+  private val PACKET_IDS = HashMap<Class<out Packet>, Int>()
+  private val PACKETS = HashMap<Int, Class<out Packet>>()
 
-  fun <O : ReferenceCounted, P : Packet<O>> createPacket(cls: Class<out Packet<O>>) = CTORS[cls]?.newInstance() as P
+  fun createPacket(cls: Class<out Packet>) = CTORS[cls]?.newInstance()
 
   fun getPacket(id: Int) = PACKETS[id]
 
-  fun getPacketId(cls: Class<out Packet<*>>): Int {
+  fun getPacketId(cls: Class<out Packet>): Int {
     val identifier = PACKET_IDS.getOrDefault(cls, -1)
     if (identifier != -1) {
       return identifier
@@ -49,7 +48,7 @@ object PacketRegistry {
 
   fun getPacketId(info: Int) = info and 0x7ffffff
 
-  fun register(cls: Class<out TcpPacket>, id: Int) {
+  fun register(cls: Class<out Packet>, id: Int) {
     PACKET_IDS[cls] = id
     PACKETS[id] = cls
     CTORS[cls] = cls.getDeclaredConstructor()

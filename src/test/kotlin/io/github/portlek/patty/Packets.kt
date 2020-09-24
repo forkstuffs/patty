@@ -23,15 +23,13 @@
 
 package io.github.portlek.patty
 
-import io.github.portlek.patty.packets.TestPacket
-import io.github.portlek.patty.tcp.TcpPacket
-import io.github.portlek.patty.PacketRegistry
+import io.github.portlek.patty.packets.TestPingPacket
 
 enum class Packets(
   val id: Int,
-  val cls: Class<out TcpPacket>
+  val cls: Class<out Packet>
 ) {
-  TEST(0, TestPacket::class.java);
+  TEST(0, TestPingPacket::class.java);
 
   companion object {
     fun registerAll() {

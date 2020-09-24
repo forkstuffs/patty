@@ -27,10 +27,10 @@ package io.github.portlek.patty
 
 import io.netty.util.ReferenceCounted
 
-interface Protocol<O : ReferenceCounted> {
+interface Protocol {
   val encryptor: PacketEncryptor?
   val sizer: PacketSizer
   val header: PacketHeader
-  val serverListener: ServerListener<O>?
-  val sessionListener: SessionListener<O>?
+  val serverListener: ServerListener?
+  val sessionListener: SessionListener?
 }

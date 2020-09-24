@@ -32,7 +32,7 @@ import io.netty.channel.ChannelHandlerContext
 import io.netty.handler.codec.ByteToMessageCodec
 
 class TcpPacketSizer(
-  patty: Patty<ByteBuf>
+  patty: Patty
 ) : ByteToMessageCodec<ByteBuf>() {
   private val protocol = patty.protocol
 

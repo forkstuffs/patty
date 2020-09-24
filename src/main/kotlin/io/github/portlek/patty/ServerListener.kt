@@ -25,16 +25,14 @@
 
 package io.github.portlek.patty
 
-import io.netty.util.ReferenceCounted
+interface ServerListener {
+  fun serverBound(patty: PattyServer, connection: Connection)
 
-interface ServerListener<O : ReferenceCounted> {
-  fun serverBound(patty: Patty<O>)
+  fun serverClosing(patty: PattyServer)
 
-  fun serverClosing(patty: Patty<O>)
+  fun serverClosed(patty: PattyServer, connection: Connection)
 
-  fun serverClosed(patty: Patty<O>)
+  fun sessionAdded(patty: PattyServer, connection: Connection)
 
-  fun sessionAdded(patty: Patty<O>, connection: Connection<O>)
-
-  fun sessionRemoved(patty: Patty<O>, connection: Connection<O>)
+  fun sessionRemoved(patty: PattyServer, connection: Connection)
 }

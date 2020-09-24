@@ -27,12 +27,12 @@ package io.github.portlek.patty
 import io.netty.buffer.ByteBuf
 import io.netty.util.ReferenceCounted
 
-abstract class Packet<O : ReferenceCounted>(cls: Class<out Packet<O>>) {
+abstract class Packet(cls: Class<out Packet>) {
   val id = PacketRegistry.getPacketId(PacketRegistry.getPacketId(cls))
 
-  abstract fun read(buffer: O, connection: Connection<O>)
+  abstract fun read(buffer: ByteBuf, connection: Connection)
 
-  abstract fun write(buffer: ByteBuf, connection: Connection<O>)
+  abstract fun write(buffer: ByteBuf, connection: Connection)
 
   open fun hasPriority() = false
 }

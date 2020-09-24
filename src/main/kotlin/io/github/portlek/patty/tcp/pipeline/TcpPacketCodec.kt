@@ -28,19 +28,16 @@ package io.github.portlek.patty.tcp.pipeline
 import io.github.portlek.patty.Connection
 import io.github.portlek.patty.Packet
 import io.github.portlek.patty.PacketRegistry
-import io.github.portlek.patty.Patty
-import io.github.portlek.patty.tcp.TcpPacket
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 import io.netty.handler.codec.ByteToMessageCodec
 
 class TcpPacketCodec(
-  patty: Patty<ByteBuf>
-) : ByteToMessageCodec<TcpPacket>() {
-  private val protocol = patty.protocol
-  private lateinit var connection: Connection<ByteBuf>
+  private val connection: Connection
+) : ByteToMessageCodec<Packet>() {
+  private val protocol = connection.patty.protocol
 
-  override fun encode(ctx: ChannelHandlerContext, packet: TcpPacket, buf: ByteBuf) {
+  override fun encode(ctx: ChannelHandlerContext, packet: Packet, buf: ByteBuf) {
     val initial = buf.readerIndex()
     try {
       protocol.header.writePacketId(buf, packet.id)
@@ -68,7 +65,7 @@ class TcpPacketCodec(
         buf.readerIndex(initial)
         return
       }
-      val packet = PacketRegistry.createPacket(packetCls as Class<Packet<ByteBuf>>)
+      val packet = PacketRegistry.createPacket(packetCls)!!
       packet.read(buf, connection)
       if (buf.readableBytes() > 0) {
         throw IllegalStateException("Packet \"" + packet::class.java.simpleName + "\" not fully read.")

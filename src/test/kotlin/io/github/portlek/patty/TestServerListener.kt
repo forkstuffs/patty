@@ -25,27 +25,25 @@
 
 package io.github.portlek.patty
 
-import io.github.portlek.patty.tcp.TcpServerListener
-import io.netty.buffer.ByteBuf
-
-class TestServerListener : TcpServerListener {
-  override fun serverBound(patty: Patty<ByteBuf>) {
+class TestServerListener : ServerListener {
+  override fun serverBound(patty: PattyServer, connection: Connection) {
     println("server bound!")
   }
 
-  override fun serverClosing(patty: Patty<ByteBuf>) {
+  override fun serverClosing(patty: PattyServer) {
     println("server closing!")
   }
 
-  override fun serverClosed(patty: Patty<ByteBuf>) {
+  override fun serverClosed(patty: PattyServer, connection: Connection) {
     println("server closed")
   }
 
-  override fun sessionAdded(patty: Patty<ByteBuf>, connection: Connection<ByteBuf>) {
+  override fun sessionAdded(patty: PattyServer, connection: Connection) {
     println("session added!")
   }
 
-  override fun sessionRemoved(patty: Patty<ByteBuf>, connection: Connection<ByteBuf>) {
+  override fun sessionRemoved(patty: PattyServer, connection: Connection) {
     println("session removed!")
+    patty.close()
   }
 }

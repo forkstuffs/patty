@@ -31,7 +31,7 @@ import io.netty.channel.ChannelHandlerContext
 import io.netty.handler.codec.ByteToMessageCodec
 
 class TcpPacketEncryptor(
-  patty: Patty<ByteBuf>
+  patty: Patty
 ) : ByteToMessageCodec<ByteBuf>() {
   private val protocol = patty.protocol
   private var decryptedArray = ByteArray(0)

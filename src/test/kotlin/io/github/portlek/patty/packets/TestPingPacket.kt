@@ -23,17 +23,29 @@
  *
  */
 
-package io.github.portlek.patty.udp
+package io.github.portlek.patty.packets
 
-import io.github.portlek.patty.Patty
-import io.netty.channel.ChannelInitializer
-import io.netty.channel.socket.DatagramChannel
-import io.netty.channel.socket.DatagramPacket
+import io.github.portlek.patty.Connection
+import io.github.portlek.patty.Packet
+import io.netty.buffer.ByteBuf
+import java.nio.charset.StandardCharsets
 
-class UdpClientInitializer(
-  private val patty: Patty<DatagramPacket>,
-) : ChannelInitializer<DatagramChannel>() {
-  override fun initChannel(channel: DatagramChannel) {
-    val address = channel.remoteAddress()
+class TestPingPacket(
+  var message: String? = null
+) : Packet(TestPingPacket::class.java) {
+  override fun read(buffer: ByteBuf, connection: Connection) {
+    val length = buffer.readInt()
+    val bytes = ByteArray(length)
+    buffer.readBytes(bytes)
+    message = String(bytes, StandardCharsets.UTF_8)
   }
+
+  override fun write(buffer: ByteBuf, connection: Connection) {
+    message?.also {
+      buffer.writeInt(it.length)
+      buffer.writeBytes(it.toByteArray(StandardCharsets.UTF_8))
+    }
+  }
+
+  override fun toString() = message ?: "null message"
 }

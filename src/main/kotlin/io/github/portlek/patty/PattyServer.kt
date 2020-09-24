@@ -25,130 +25,41 @@
 package io.github.portlek.patty
 
 import io.github.portlek.patty.tcp.TcpProtocol
-import io.github.portlek.patty.tcp.TcpServerInitializer
-import io.github.portlek.patty.udp.UdpServerInitializer
-import io.github.portlek.patty.util.PoolSpec
-import io.netty.bootstrap.Bootstrap
-import io.netty.bootstrap.ServerBootstrap
-import io.netty.buffer.ByteBuf
-import io.netty.channel.Channel
-import io.netty.channel.ChannelFutureListener
-import io.netty.channel.ChannelOption
-import io.netty.channel.ServerChannel
-import io.netty.channel.epoll.Epoll
-import io.netty.channel.epoll.EpollDatagramChannel
-import io.netty.channel.epoll.EpollEventLoopGroup
-import io.netty.channel.epoll.EpollServerSocketChannel
-import io.netty.channel.nio.NioEventLoopGroup
-import io.netty.channel.socket.DatagramPacket
-import io.netty.channel.socket.nio.NioDatagramChannel
-import io.netty.channel.socket.nio.NioServerSocketChannel
-import io.netty.util.ReferenceCounted
+import io.github.portlek.patty.tcp.TcpServerConnection
+import java.net.InetSocketAddress
+import java.util.*
 
-class PattyServer<O : ReferenceCounted> private constructor(
+class PattyServer private constructor(
   private val ip: String,
   private val port: Int,
-  private val channelClass: Class<out Channel>,
-  protocol: Protocol<O>
-) : Patty<O>(protocol) {
-  private val eventLoop = if (Epoll.isAvailable()) {
-    EpollEventLoopGroup(PoolSpec.UNCAUGHT_FACTORY)
-  } else {
-    NioEventLoopGroup(PoolSpec.UNCAUGHT_FACTORY)
-  }
+  protocol: Protocol
+) : Patty(protocol) {
+  private var connection: Connection? = null
+  val connections = ArrayList<Connection>()
 
   fun bind(wait: Boolean = true) {
-    val future = if (ServerChannel::class.java.isAssignableFrom(channelClass)) {
-      ServerBootstrap()
-        .group(eventLoop)
-        .channel(channelClass as Class<out ServerChannel>)
-        .childHandler(TcpServerInitializer(this as Patty<ByteBuf>))
-        .bind(ip, port)
-    } else {
-      Bootstrap()
-        .option(ChannelOption.SO_BROADCAST, true)
-        .group(eventLoop)
-        .channel(channelClass)
-        .handler(UdpServerInitializer(this as Patty<DatagramPacket>))
-        .bind(ip, port)
-    }
-    if (wait) {
-      channel = future.sync().channel()
-      protocol.serverListener?.also {
-        it.serverBound(this)
-      }
-    } else {
-      future.addListener(ChannelFutureListener {
-        if (it.isSuccess) {
-          channel = it.channel()
-          protocol.serverListener?.also { listener ->
-            listener.serverBound(this)
-          }
-        }
-      })
-    }
+    connection = TcpServerConnection(this, InetSocketAddress(ip, port)).also { it.connect(wait) }
   }
 
   fun close(wait: Boolean = true) {
     protocol.serverListener?.also {
       it.serverClosing(this)
     }
-    for (connection in Connection.CONNECTIONS.values) {
-      if (connection.isConnected()) {
-        connection.disconnect("Server closed.")
+    connections
+      .filter { it.isConnected() }
+      .forEach {
+        it.disconnect("Server closed.")
       }
-    }
-    channel?.also {
-      if (it.isOpen) {
-        val future = it.close()
-        if (wait) {
-          future.sync()
-          protocol.serverListener?.also { listener ->
-            listener.serverClosed(this)
-          }
-        } else {
-          future.addListener { listener ->
-            if (listener.isSuccess) {
-              protocol.serverListener?.also { serverListener ->
-                serverListener.serverClosed(this)
-              }
-            }
-          }
-        }
-      }
-    }
-    channel = null
-    val future = eventLoop.shutdownGracefully()
-    if (wait) {
-      future.sync()
-    } else {
-      future.addListener {
-        if (!it.isSuccess) {
-          System.err.println("[ERROR] Failed to asynchronously close connection listener.")
-          if (it.cause() != null) {
-            it.cause().printStackTrace()
-          }
-        }
-      }
-    }
+    connection?.close(wait)
   }
 
   companion object {
-    private val tcpChannel = if (Epoll.isAvailable()) {
-      EpollServerSocketChannel::class.java
-    } else {
-      NioServerSocketChannel::class.java
-    }
-    private val udpChannel = if (Epoll.isAvailable()) {
-      EpollDatagramChannel::class.java
-    } else {
-      NioDatagramChannel::class.java
-    }
-
     fun tcp(ip: String, port: Int, packetHeader: PacketHeader, packetEncryptor: PacketEncryptor? = null,
-            packetSizer: PacketSizer, serverListener: ServerListener<ByteBuf>? = null) =
-      PattyServer(ip, port, tcpChannel, TcpProtocol(packetHeader, packetEncryptor, packetSizer, serverListener))
+            packetSizer: PacketSizer, serverListener: ServerListener? = null,
+            sessionListener: SessionListener? = null) =
+      PattyServer(ip, port, TcpProtocol(packetHeader, packetEncryptor, packetSizer, serverListener,
+        sessionListener))
 
-    fun tcp(ip: String, port: Int, protocol: TcpProtocol) = PattyServer(ip, port, tcpChannel, protocol)
+    fun tcp(ip: String, port: Int, protocol: TcpProtocol) = PattyServer(ip, port, protocol)
   }
 }

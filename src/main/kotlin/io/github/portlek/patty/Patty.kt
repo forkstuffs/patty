@@ -25,11 +25,6 @@
 
 package io.github.portlek.patty
 
-import io.netty.channel.Channel
 import io.netty.util.ReferenceCounted
 
-abstract class Patty<O : ReferenceCounted>(
-  val protocol: Protocol<O>
-) {
-  protected var channel: Channel? = null
-}
+abstract class Patty(val protocol: Protocol)
