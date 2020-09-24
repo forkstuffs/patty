@@ -1,0 +1,4 @@
+language: java
+install: true
+script:
+  - mvn antrun:run@diktat clean dokka:javadocJar install -Dgpg.skip=true -B -ntp
