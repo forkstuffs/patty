@@ -14,7 +14,7 @@
   <name>patty</name>
   <description>A project that allows you to make unique Netty projects.</description>
   <url>https://github.com/portlek/patty</url>
-  antrun:run@diktat
+
   <scm>
     <connection>scm:git:git://github.com/portlek/patty.git</connection>
     <developerConnection>scm:git:ssh://github.com/portlek/patty.git</developerConnection>
