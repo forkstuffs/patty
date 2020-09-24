@@ -22,21 +22,22 @@
  * SOFTWARE.
  *
  */
+package io.github.portlek.patty
 
-package io.github.portlek.patty;
+import io.netty.util.ReferenceCounted
 
-public interface SessionListener {
-  void packetReceived(PacketReceivedEvent event);
+interface SessionListener<O : ReferenceCounted> {
+  fun packetReceived(event: Packet<O>)
 
-  void packetSending(PacketSendingEvent event);
+  fun packetSending(event: Packet<O>)
 
-  void packetSent(PacketSentEvent event);
+  fun packetSent(event: Packet<O>)
 
-  void packetError(PacketErrorEvent event);
+  fun packetError(event: Packet<O>, throwable: Throwable, connection: Connection<O>)
 
-  void connected(ConnectedEvent event);
+  fun connected(connection: Connection<O>)
 
-  void disconnecting(DisconnectingEvent event);
+  fun disconnecting(connection: Connection<O>)
 
-  void disconnected(DisconnectedEvent event);
+  fun disconnected(connection: Connection<O>)
 }

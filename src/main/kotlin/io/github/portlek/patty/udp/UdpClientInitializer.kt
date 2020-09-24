@@ -26,9 +26,6 @@
 package io.github.portlek.patty.udp
 
 import io.github.portlek.patty.Patty
-import io.github.portlek.patty.PattyClient
-import io.github.portlek.patty.PattyServer
-import io.github.portlek.patty.Protocol
 import io.netty.channel.ChannelInitializer
 import io.netty.channel.socket.DatagramChannel
 import io.netty.channel.socket.DatagramPacket

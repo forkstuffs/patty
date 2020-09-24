@@ -31,6 +31,6 @@ interface Protocol<O : ReferenceCounted> {
   val encryptor: PacketEncryptor?
   val sizer: PacketSizer
   val header: PacketHeader
-  val serverListener: ServerListener<O>?,
-    val sessionListener: SessionListener
+  val serverListener: ServerListener<O>?
+  val sessionListener: SessionListener<O>?
 }

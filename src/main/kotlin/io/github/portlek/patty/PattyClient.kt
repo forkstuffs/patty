@@ -95,8 +95,10 @@ class PattyClient<O : ReferenceCounted> private constructor(
     }
 
     fun tcp(ip: String, port: Int, packetHeader: PacketHeader, packetEncryptor: PacketEncryptor? = null,
-            packetSizer: PacketSizer, serverListener: ServerListener<ByteBuf>? = null) =
-      PattyClient(ip, port, tcpChannel, TcpProtocol(packetHeader, packetEncryptor, packetSizer, serverListener))
+            packetSizer: PacketSizer, serverListener: ServerListener<ByteBuf>? = null,
+            sessionListener: SessionListener<ByteBuf>? = null) =
+      PattyClient(ip, port, tcpChannel, TcpProtocol(packetHeader, packetEncryptor, packetSizer, serverListener,
+        sessionListener))
 
     fun tcp(ip: String, port: Int, protocol: TcpProtocol) = PattyClient(ip, port, tcpChannel, protocol)
   }

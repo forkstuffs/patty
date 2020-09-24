@@ -42,7 +42,7 @@ object TestRunner {
     PattyServer.tcp("127.0.0.1", 25565,
       packetHeader = TestPacketHeader(),
       packetSizer = TestPacketSizer(),
-      serverListener = TestServerListener(true))
+      serverListener = TestServerListener())
       .bind()
     PattyClient.tcp("127.0.0.1", 25565,
       packetHeader = TestPacketHeader(),
