@@ -10,6 +10,7 @@
           </option>
           <option name="goals">
             <list>
+              <option value="antrun:run@diktat" />
               <option value="clean" />
               <option value="dokka:javadocJar" />
               <option value="install" />
