@@ -12,7 +12,7 @@
   <artifactId>patty</artifactId>
   <version>1.0-SNAPSHOT</version>
   <name>patty</name>
-  <description>A project that allows you to make unique Netty projects.</description>
+  <description>A project that helps you to create a TCP client and server with Netty.</description>
   <url>https://github.com/portlek/patty</url>
 
   <scm>
