@@ -33,7 +33,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageCodec;
 import io.netty.handler.codec.DecoderException;
 import java.util.List;
-import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 import org.jetbrains.annotations.NotNull;
@@ -76,7 +75,7 @@ public final class TcpPacketCompressor extends ByteToMessageCodec<ByteBuf> {
   }
 
   @Override
-  public void decode(final ChannelHandlerContext ctx, final ByteBuf input, final List<Object> out) {
+  public void decode(final ChannelHandlerContext ctx, final ByteBuf input, final List<Object> out) throws Exception {
     if (input.readableBytes() == 0) {
       return;
     }
@@ -86,20 +85,16 @@ public final class TcpPacketCompressor extends ByteToMessageCodec<ByteBuf> {
       return;
     }
     if (size < this.connection.compressionThreshold) {
-      throw new DecoderException("Badly compressed packet: size of $size is below threshold of ${connection.compressionThreshold}.");
+      throw new DecoderException("Badly compressed packet: size of " + size + " is below threshold of " + this.connection.compressionThreshold + ".");
     }
     if (size > TcpPacketCompressor.MAX_COMPRESSED_SIZE) {
-      throw new DecoderException("Badly compressed packet: size of $size is larger than protocol maximum of $MAX_COMPRESSED_SIZE.");
+      throw new DecoderException("Badly compressed packet: size of " + size + " is larger than protocol maximum of " + TcpPacketCompressor.MAX_COMPRESSED_SIZE + ".");
     }
     final byte[] bytes = new byte[input.readableBytes()];
     input.readBytes(bytes);
     this.inflated.setInput(bytes);
     final byte[] inflatedArray = new byte[size];
-    try {
-      this.inflated.inflate(inflatedArray);
-    } catch (final DataFormatException e) {
-      e.printStackTrace();
-    }
+    this.inflated.inflate(inflatedArray);
     out.add(Unpooled.wrappedBuffer(inflatedArray));
     this.inflated.reset();
   }

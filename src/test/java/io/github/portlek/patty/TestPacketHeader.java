@@ -27,6 +27,7 @@ package io.github.portlek.patty;
 
 import io.github.portlek.patty.util.ReadWrite;
 import io.netty.buffer.ByteBuf;
+import java.io.IOException;
 import org.jetbrains.annotations.NotNull;
 
 public final class TestPacketHeader implements PacketHeader {
@@ -59,7 +60,7 @@ public final class TestPacketHeader implements PacketHeader {
   }
 
   @Override
-  public int readLength(@NotNull final ByteBuf input, final int available) {
+  public int readLength(@NotNull final ByteBuf input, final int available) throws IOException {
     return ReadWrite.readVarInt(input);
   }
 
@@ -69,7 +70,7 @@ public final class TestPacketHeader implements PacketHeader {
   }
 
   @Override
-  public int readPacketId(@NotNull final ByteBuf input) {
+  public int readPacketId(@NotNull final ByteBuf input) throws IOException {
     return ReadWrite.readVarInt(input);
   }
 

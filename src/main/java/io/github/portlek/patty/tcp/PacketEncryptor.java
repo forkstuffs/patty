@@ -31,7 +31,7 @@ public interface PacketEncryptor {
 
   int getEncryptOutputSize(int length);
 
-  int decrypt(byte[] input, int inputOffset, int inputLength, byte[] output, int outputOffset);
+  int decrypt(byte[] input, int inputOffset, int inputLength, byte[] output, int outputOffset) throws Exception;
 
-  int encrypt(byte[] input, int inputOffset, int inputLength, byte[] output, int outputOffset);
+  int encrypt(byte[] input, int inputOffset, int inputLength, byte[] output, int outputOffset) throws Exception;
 }

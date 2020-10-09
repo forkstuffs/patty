@@ -47,8 +47,8 @@ public final class PattyClient extends Patty {
   @NotNull
   public static PattyClient tcp(@NotNull final String ip, final int port, @NotNull final PacketHeader packetHeader,
                                 @Nullable final PacketEncryptor packetEncryptor, @NotNull final PacketSizer packetSizer,
-                                @Nullable final SessionListener sessionListener) {
-    return PattyClient.tcp(ip, port, new TcpProtocol(packetEncryptor, packetSizer, packetHeader, null, sessionListener));
+                                @Nullable final ConnectionListener connectionListener) {
+    return PattyClient.tcp(ip, port, new TcpProtocol(packetEncryptor, packetSizer, packetHeader, null, connectionListener));
   }
 
   @NotNull

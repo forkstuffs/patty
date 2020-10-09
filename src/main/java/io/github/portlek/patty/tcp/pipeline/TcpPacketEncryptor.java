@@ -27,6 +27,7 @@ package io.github.portlek.patty.tcp.pipeline;
 
 import io.github.portlek.patty.Patty;
 import io.github.portlek.patty.Protocol;
+import io.github.portlek.patty.tcp.PacketEncryptor;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageCodec;
@@ -47,31 +48,33 @@ public final class TcpPacketEncryptor extends ByteToMessageCodec<ByteBuf> {
   }
 
   @Override
-  public void encode(final ChannelHandlerContext ctx, final ByteBuf msg, final ByteBuf out) {
-    if (this.protocol.getEncryptor() != null) {
-      final int length = msg.readableBytes();
-      final byte[] bytes = this.getBytes(msg);
-      final int outLength = this.protocol.getEncryptor().getEncryptOutputSize(length);
-      if (this.encryptedArray.length < outLength) {
-        this.encryptedArray = new byte[outLength];
-      }
-      out.writeBytes(this.encryptedArray, 0, this.protocol.getEncryptor().encrypt(bytes, 0, length, this.encryptedArray, 0));
-    } else {
+  public void encode(final ChannelHandlerContext ctx, final ByteBuf msg, final ByteBuf out) throws Exception {
+    final PacketEncryptor encryptor = this.protocol.getEncryptor();
+    if (encryptor == null) {
       out.writeBytes(msg);
+      return;
     }
+    final int length = msg.readableBytes();
+    final byte[] bytes = this.getBytes(msg);
+    final int outLength = encryptor.getEncryptOutputSize(length);
+    if (this.encryptedArray.length < outLength) {
+      this.encryptedArray = new byte[outLength];
+    }
+    out.writeBytes(this.encryptedArray, 0, encryptor.encrypt(bytes, 0, length, this.encryptedArray, 0));
   }
 
   @Override
-  public void decode(final ChannelHandlerContext ctx, final ByteBuf buf, final List<Object> out) {
-    if (this.protocol.getEncryptor() != null) {
-      final int length = buf.readableBytes();
-      final byte[] bytes = this.getBytes(buf);
-      final ByteBuf result = ctx.alloc().heapBuffer(this.protocol.getEncryptor().getDecryptOutputSize(length));
-      result.writerIndex(this.protocol.getEncryptor().decrypt(bytes, 0, length, result.array(), result.arrayOffset()));
-      out.add(result);
-    } else {
+  public void decode(final ChannelHandlerContext ctx, final ByteBuf buf, final List<Object> out) throws Exception {
+    final PacketEncryptor encryptor = this.protocol.getEncryptor();
+    if (encryptor == null) {
       out.add(buf.readBytes(buf.readableBytes()));
+      return;
     }
+    final int length = buf.readableBytes();
+    final byte[] bytes = this.getBytes(buf);
+    final ByteBuf result = ctx.alloc().heapBuffer(encryptor.getDecryptOutputSize(length));
+    result.writerIndex(encryptor.decrypt(bytes, 0, length, result.array(), result.arrayOffset()));
+    out.add(result);
   }
 
   private byte[] getBytes(final ByteBuf buf) {

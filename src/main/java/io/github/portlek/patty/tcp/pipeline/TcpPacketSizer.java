@@ -31,8 +31,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageCodec;
+import io.netty.handler.codec.CorruptedFrameException;
 import java.util.List;
-import java.util.stream.IntStream;
 import org.jetbrains.annotations.NotNull;
 
 public final class TcpPacketSizer extends ByteToMessageCodec<ByteBuf> {
@@ -53,28 +53,30 @@ public final class TcpPacketSizer extends ByteToMessageCodec<ByteBuf> {
   }
 
   @Override
-  public void decode(final ChannelHandlerContext ctx, final ByteBuf buf, final List<Object> out) {
+  public void decode(final ChannelHandlerContext ctx, final ByteBuf buf, final List<Object> out) throws Exception {
     final int size = this.protocol.getHeader().getLengthSize();
-    if (size > 0) {
-      buf.markReaderIndex();
-      final byte[] lengthBytes = new byte[size];
-      IntStream.range(0, lengthBytes.length).forEach(index -> {
-        if (!buf.isReadable()) {
+    if (size <= 0) {
+      out.add(buf.readBytes(buf.readableBytes()));
+      return;
+    }
+    buf.markReaderIndex();
+    final byte[] lengthBytes = new byte[size];
+    for (int index = 0; index < lengthBytes.length; index++) {
+      if (!buf.isReadable()) {
+        buf.resetReaderIndex();
+        return;
+      }
+      lengthBytes[index] = buf.readByte();
+      if (this.protocol.getHeader().isLengthVariable() && lengthBytes[index] >= 0 || index == size - 1) {
+        final int length = this.protocol.getHeader().readLength(Unpooled.wrappedBuffer(lengthBytes), buf.readableBytes());
+        if (buf.readableBytes() < length) {
           buf.resetReaderIndex();
           return;
         }
-        lengthBytes[index] = buf.readByte();
-        if (this.protocol.getHeader().isLengthVariable() && lengthBytes[index] >= 0 || index == size - 1) {
-          final int length = this.protocol.getHeader().readLength(Unpooled.wrappedBuffer(lengthBytes), buf.readableBytes());
-          if (buf.readableBytes() < length) {
-            buf.resetReaderIndex();
-            return;
-          }
-          out.add(buf.readBytes(length));
-        }
-      });
-    } else {
-      out.add(buf.readBytes(buf.readableBytes()));
+        out.add(buf.readBytes(length));
+        return;
+      }
     }
+    throw new CorruptedFrameException("Length is too long.");
   }
 }

@@ -25,6 +25,7 @@
 package io.github.portlek.patty;
 
 import io.netty.buffer.ByteBuf;
+import java.io.IOException;
 import org.jetbrains.annotations.NotNull;
 
 public interface PacketHeader {
@@ -35,11 +36,11 @@ public interface PacketHeader {
 
   int getLengthSize(int length);
 
-  int readLength(@NotNull ByteBuf input, int available);
+  int readLength(@NotNull ByteBuf input, int available) throws IOException;
 
   void writeLength(@NotNull ByteBuf output, int length);
 
-  int readPacketId(@NotNull ByteBuf input);
+  int readPacketId(@NotNull ByteBuf input) throws IOException;
 
   void writePacketId(@NotNull ByteBuf output, int packetId);
 }

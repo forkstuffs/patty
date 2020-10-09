@@ -44,16 +44,16 @@ public final class TcpProtocol implements Protocol {
   private final ServerListener serverListener;
 
   @Nullable
-  private final SessionListener sessionListener;
+  private final ConnectionListener connectionListener;
 
   public TcpProtocol(@Nullable final PacketEncryptor encryptor, @NotNull final PacketSizer sizer,
                      @NotNull final PacketHeader header, @Nullable final ServerListener serverListener,
-                     @Nullable final SessionListener sessionListener) {
+                     @Nullable final ConnectionListener connectionListener) {
     this.encryptor = encryptor;
     this.sizer = sizer;
     this.header = header;
     this.serverListener = serverListener;
-    this.sessionListener = sessionListener;
+    this.connectionListener = connectionListener;
   }
 
   @Nullable
@@ -82,7 +82,7 @@ public final class TcpProtocol implements Protocol {
 
   @Nullable
   @Override
-  public SessionListener getSessionListener() {
-    return this.sessionListener;
+  public ConnectionListener getConnectionListener() {
+    return this.connectionListener;
   }
 }

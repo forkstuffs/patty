@@ -43,10 +43,10 @@ import org.jetbrains.annotations.Nullable;
 
 public abstract class Connection extends SimpleChannelInboundHandler<Packet> {
 
-  protected final BlockingQueue<Packet> packets = new LinkedBlockingQueue<>();
-
   @NotNull
   public final Patty patty;
+
+  protected final BlockingQueue<Packet> packets = new LinkedBlockingQueue<>();
 
   @NotNull
   protected final SocketAddress address;
@@ -77,18 +77,16 @@ public abstract class Connection extends SimpleChannelInboundHandler<Packet> {
       return;
     }
     final boolean cancelled;
-    final SessionListener sessionListener = this.patty.protocol.getSessionListener();
-    if (sessionListener == null) {
-      cancelled = false;
+    final ConnectionListener connectionListener = this.patty.protocol.getConnectionListener();
+    if (connectionListener != null) {
+      cancelled = !connectionListener.packetSending(packet, this);
     } else {
-      cancelled = !sessionListener.packetSending(packet, this);
+      cancelled = true;
     }
     if (!cancelled) {
       this.channel.writeAndFlush(packet).addListener(future -> {
         if (future.isSuccess()) {
-          if (sessionListener != null) {
-            sessionListener.packetSent(packet, this);
-          }
+          connectionListener.packetSent(packet, this);
         } else {
           this.exceptionCaught(null, future.cause());
         }
@@ -107,23 +105,22 @@ public abstract class Connection extends SimpleChannelInboundHandler<Packet> {
     this.disconnected = true;
     if (this.packetHandleThread != null) {
       this.packetHandleThread.interrupt();
+      this.packetHandleThread = null;
     }
+    final ConnectionListener connectionListener = this.patty.protocol.getConnectionListener();
     if (this.channel != null && this.channel.isOpen()) {
-      if (this.patty.protocol.getSessionListener() != null) {
-        this.patty.protocol.getSessionListener().disconnecting(this, reason, cause);
+      if (connectionListener != null) {
+        connectionListener.disconnecting(this, reason, cause);
       }
       this.channel.flush().close().addListener(future -> {
-          if (this.patty.protocol.getSessionListener() != null) {
-            this.patty.protocol.getSessionListener().disconnected(this, reason, cause);
-          }
+        if (connectionListener != null) {
+          connectionListener.disconnected(this, reason, cause);
         }
-      );
-    } else {
-      if (this.patty.protocol.getSessionListener() != null) {
-        this.patty.protocol.getSessionListener().disconnected(this, reason, cause);
-      }
-      this.channel = null;
+      });
+    } else if (connectionListener != null) {
+      connectionListener.disconnected(this, reason, cause);
     }
+    this.channel = null;
   }
 
   public void connect() {
@@ -147,11 +144,12 @@ public abstract class Connection extends SimpleChannelInboundHandler<Packet> {
   @Override
   public void channelRead0(final ChannelHandlerContext ctx, final Packet packet) {
     if (packet.hasPriority()) {
-      if (this.patty.protocol.getSessionListener() != null) {
-        this.patty.protocol.getSessionListener().packetReceived(packet, this);
-      } else {
-        this.packets.add(packet);
+      final ConnectionListener connectionListener = this.patty.protocol.getConnectionListener();
+      if (connectionListener != null) {
+        connectionListener.packetReceived(packet, this);
       }
+    } else {
+      this.packets.add(packet);
     }
   }
 
@@ -162,22 +160,29 @@ public abstract class Connection extends SimpleChannelInboundHandler<Packet> {
       return;
     }
     this.channel = ctx.channel();
+    final ConnectionListener connectionListener = this.patty.protocol.getConnectionListener();
     this.packetHandleThread = new Thread(() -> {
       try {
         Packet packet;
         while ((packet = this.packets.take()) != null) {
-          if (this.patty.protocol.getSessionListener() != null) {
-            this.patty.protocol.getSessionListener().packetReceived(packet, this);
+          if (connectionListener != null) {
+            connectionListener.packetReceived(packet, this);
           }
         }
-      } catch (final InterruptedException ignored) {
       } catch (final Throwable t) {
         this.exceptionCaught(null, t);
       }
     });
     this.packetHandleThread.start();
-    if (this.patty.protocol.getSessionListener() != null) {
-      this.patty.protocol.getSessionListener().connected(this);
+    if (connectionListener != null) {
+      connectionListener.connected(this);
+    }
+  }
+
+  @Override
+  public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
+    if (ctx.channel() == this.channel) {
+      this.disconnect("Connection closed.");
     }
   }
 

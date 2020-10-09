@@ -27,7 +27,7 @@ package io.github.portlek.patty;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public interface SessionListener {
+public interface ConnectionListener {
 
   void packetReceived(@NotNull Packet packet, @NotNull Connection connection);
 

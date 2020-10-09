@@ -26,34 +26,31 @@
 package io.github.portlek.patty.util;
 
 import io.netty.buffer.ByteBuf;
-import org.jetbrains.annotations.NotNull;
+import java.io.IOException;
 
 public final class ReadWrite {
 
   private ReadWrite() {
   }
 
-  public static int readVarInt(@NotNull final ByteBuf buffer) {
-    int result = 0;
-    int indent = 0;
-    int b = buffer.readByte();
-    while ((b & 0x80) == 0x80) {
-      if (!(indent < 21)) {
-        throw new RuntimeException("Too many bytes for a VarInt32.");
+  public static int readVarInt(final ByteBuf buf) throws IOException {
+    int value = 0;
+    int size = 0;
+    int b;
+    while (((b = buf.readByte()) & 0x80) == 0x80) {
+      value |= b & 0x7F << size++ * 7;
+      if (size > 5) {
+        throw new IOException("VarInt too long (length must be <= 5)");
       }
-      result += (b & 0x7f) << indent;
-      indent += 7;
-      b = buffer.readByte();
     }
-    result += (b & 0x7f) << indent;
-    return result;
+    return value | b & 0x7F << size * 7;
   }
 
-  public static void writeVarInt(final ByteBuf buffer, int toWrite) {
-    while ((toWrite & 0xFFFFFF80) != 0L) {
-      buffer.writeByte(toWrite & 0x7F | 0x80);
-      toWrite >>>= 7;
+  public static void writeVarInt(final ByteBuf buf, int towrite) {
+    while ((towrite & ~0x7F) != 0) {
+      buf.writeByte(towrite & 0x7F | 0x80);
+      towrite = towrite >>> 7;
     }
-    buffer.writeByte(toWrite & 0x7F);
+    buf.writeByte(towrite);
   }
 }

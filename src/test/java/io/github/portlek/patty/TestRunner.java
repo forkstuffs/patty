@@ -39,13 +39,13 @@ public final class TestRunner {
       new TestPacketEncryptor(key),
       new TestPacketSizer(),
       new TestServerListener(),
-      new TestServerSessionListener())
+      new TestServerConnectionListener())
       .bind();
     PattyClient.tcp("127.0.0.1", 25565,
       new TestPacketHeader(),
       new TestPacketEncryptor(key),
       new TestPacketSizer(),
-      new TestClientSessionListener())
+      new TestClientConnectionListener())
       .connect();
   }
 }
