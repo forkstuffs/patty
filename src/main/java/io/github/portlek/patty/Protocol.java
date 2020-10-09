@@ -23,27 +23,26 @@
  *
  */
 
-package io.github.portlek.patty
+package io.github.portlek.patty;
 
-class TestServerListener : ServerListener {
-    override fun serverBound(patty: PattyServer, connection: Connection) {
-        println("server bound!")
-    }
+import io.github.portlek.patty.tcp.PacketEncryptor;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-    override fun serverClosing(patty: PattyServer) {
-        println("server closing!")
-    }
+public interface Protocol {
 
-    override fun serverClosed(patty: PattyServer, connection: Connection) {
-        println("server closed")
-    }
+  @Nullable
+  PacketEncryptor getEncryptor();
 
-    override fun sessionAdded(patty: PattyServer, connection: Connection) {
-        println("session added!")
-    }
+  @NotNull
+  PacketSizer getSizer();
 
-    override fun sessionRemoved(patty: PattyServer, connection: Connection) {
-        println("session removed!")
-        patty.close()
-    }
+  @NotNull
+  PacketHeader getHeader();
+
+  @Nullable
+  ServerListener getServerListener();
+
+  @Nullable
+  SessionListener getSessionListener();
 }

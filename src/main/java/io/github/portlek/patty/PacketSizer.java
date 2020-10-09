@@ -23,27 +23,8 @@
  *
  */
 
-package io.github.portlek.patty
+package io.github.portlek.patty;
 
-class TestServerListener : ServerListener {
-    override fun serverBound(patty: PattyServer, connection: Connection) {
-        println("server bound!")
-    }
-
-    override fun serverClosing(patty: PattyServer) {
-        println("server closing!")
-    }
-
-    override fun serverClosed(patty: PattyServer, connection: Connection) {
-        println("server closed")
-    }
-
-    override fun sessionAdded(patty: PattyServer, connection: Connection) {
-        println("session added!")
-    }
-
-    override fun sessionRemoved(patty: PattyServer, connection: Connection) {
-        println("session removed!")
-        patty.close()
-    }
+public interface PacketSizer {
+    
 }

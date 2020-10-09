@@ -26,48 +26,47 @@
 package io.github.portlek.patty
 
 import io.github.portlek.patty.packets.TestPingPacket
-import io.netty.buffer.ByteBuf
 
 class TestClientSessionListener : SessionListener {
-  override fun packetReceived(packet: Packet, connection: Connection) {
-    if (packet is TestPingPacket) {
-      println("client packet received ${packet.message}")
-      if (packet.message!! == "hello") {
-        connection.sendPacket(TestPingPacket("exit"))
-      } else if (packet.message!! == "exit"){
-        connection.disconnect("Client exits from the connection!")
-      }
+    override fun packetReceived(packet: Packet, connection: Connection) {
+        if (packet is TestPingPacket) {
+            println("client packet received ${packet.message}")
+            if (packet.message!! == "hello") {
+                connection.sendPacket(TestPingPacket("exit"))
+            } else if (packet.message!! == "exit") {
+                connection.disconnect("Client exits from the connection!")
+            }
+        }
     }
-  }
 
-  override fun packetSending(packet: Packet, connection: Connection): Boolean {
-    if (packet is TestPingPacket) {
-      println("client packet sending ${packet.message}")
+    override fun packetSending(packet: Packet, connection: Connection): Boolean {
+        if (packet is TestPingPacket) {
+            println("client packet sending ${packet.message}")
+        }
+        return true
     }
-    return true
-  }
 
-  override fun packetSent(packet: Packet, connection: Connection) {
-    if (packet is TestPingPacket) {
-      println("client packet sent ${packet.message}")
+    override fun packetSent(packet: Packet, connection: Connection) {
+        if (packet is TestPingPacket) {
+            println("client packet sent ${packet.message}")
+        }
     }
-  }
 
-  override fun packetError(throwable: Throwable, connection: Connection): Boolean {
-    TODO("Not yet implemented")
-  }
+    override fun packetError(throwable: Throwable, connection: Connection): Boolean {
+        TODO("Not yet implemented")
+    }
 
-  override fun connected(connection: Connection) {
-    println("client connected")
-    connection.sendPacket(TestPingPacket("hello"))
-  }
+    override fun connected(connection: Connection) {
+        println("client connected")
+        connection.sendPacket(TestPingPacket("hello"))
+    }
 
-  override fun disconnecting(connection: Connection, reason: String, cause: Throwable?) {
-    println("client disconnecting")
-  }
+    override fun disconnecting(connection: Connection, reason: String, cause: Throwable?) {
+        println("client disconnecting")
+    }
 
-  override fun disconnected(connection: Connection, reason: String, cause: Throwable?) {
-    println("client disconnected")
-    cause?.printStackTrace()
-  }
+    override fun disconnected(connection: Connection, reason: String, cause: Throwable?) {
+        println("client disconnected")
+        cause?.printStackTrace()
+    }
 }

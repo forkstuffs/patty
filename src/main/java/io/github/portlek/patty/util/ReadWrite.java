@@ -23,27 +23,37 @@
  *
  */
 
-package io.github.portlek.patty
+package io.github.portlek.patty.util;
 
-class TestServerListener : ServerListener {
-    override fun serverBound(patty: PattyServer, connection: Connection) {
-        println("server bound!")
-    }
+import io.netty.buffer.ByteBuf;
+import org.jetbrains.annotations.NotNull;
 
-    override fun serverClosing(patty: PattyServer) {
-        println("server closing!")
-    }
+public final class ReadWrite {
 
-    override fun serverClosed(patty: PattyServer, connection: Connection) {
-        println("server closed")
-    }
+  private ReadWrite() {
+  }
 
-    override fun sessionAdded(patty: PattyServer, connection: Connection) {
-        println("session added!")
+  public static int readVarInt(@NotNull final ByteBuf buffer) {
+    int result = 0;
+    int indent = 0;
+    int b = buffer.readByte();
+    while ((b & 0x80) == 0x80) {
+      if (!(indent < 21)) {
+        throw new RuntimeException("Too many bytes for a VarInt32.");
+      }
+      result += (b & 0x7f) << indent;
+      indent += 7;
+      b = buffer.readByte();
     }
+    result += (b & 0x7f) << indent;
+    return result;
+  }
 
-    override fun sessionRemoved(patty: PattyServer, connection: Connection) {
-        println("session removed!")
-        patty.close()
+  public static void writeVarInt(final ByteBuf buffer, int toWrite) {
+    while ((toWrite & 0xFFFFFF80) != 0L) {
+      buffer.writeByte(toWrite & 0x7F | 0x80);
+      toWrite >>>= 7;
     }
+    buffer.writeByte(toWrite & 0x7F);
+  }
 }

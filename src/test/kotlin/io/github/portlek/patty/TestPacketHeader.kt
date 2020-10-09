@@ -25,31 +25,30 @@
 
 package io.github.portlek.patty
 
-import io.github.portlek.patty.util.ReadWrite
 import io.netty.buffer.ByteBuf
 
 class TestPacketHeader : PacketHeader {
-  override val isLengthVariable = true
-  override val lengthSize = 5
+    override val isLengthVariable = true
+    override val lengthSize = 5
 
-  override fun getLengthSize(length: Int) =
-    when {
-      length and -128 == 0 -> 1
-      length and -16384 == 0 -> 2
-      length and -2097152 == 0 -> 3
-      length and -268435456 == 0 -> 4
-      else -> 5
+    override fun getLengthSize(length: Int) =
+            when {
+                length and -128 == 0 -> 1
+                length and -16384 == 0 -> 2
+                length and -2097152 == 0 -> 3
+                length and -268435456 == 0 -> 4
+                else -> 5
+            }
+
+    override fun readLength(input: ByteBuf, available: Int) = ReadWrite.readVarInt(input)
+
+    override fun writeLength(output: ByteBuf, length: Int) {
+        ReadWrite.writeVarInt(output, length)
     }
 
-  override fun readLength(input: ByteBuf, available: Int) = ReadWrite.readVarInt(input)
+    override fun readPacketId(input: ByteBuf) = ReadWrite.readVarInt(input)
 
-  override fun writeLength(output: ByteBuf, length: Int) {
-    ReadWrite.writeVarInt(output, length)
-  }
-
-  override fun readPacketId(input: ByteBuf) = ReadWrite.readVarInt(input)
-
-  override fun writePacketId(output: ByteBuf, packetId: Int) {
-    ReadWrite.writeVarInt(output, packetId)
-  }
+    override fun writePacketId(output: ByteBuf, packetId: Int) {
+        ReadWrite.writeVarInt(output, packetId)
+    }
 }

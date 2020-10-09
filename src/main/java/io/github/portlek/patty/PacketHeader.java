@@ -22,28 +22,24 @@
  * SOFTWARE.
  *
  */
+package io.github.portlek.patty;
 
-package io.github.portlek.patty
+import io.netty.buffer.ByteBuf;
+import org.jetbrains.annotations.NotNull;
 
-class TestServerListener : ServerListener {
-    override fun serverBound(patty: PattyServer, connection: Connection) {
-        println("server bound!")
-    }
+public interface PacketHeader {
 
-    override fun serverClosing(patty: PattyServer) {
-        println("server closing!")
-    }
+  boolean isLengthVariable();
 
-    override fun serverClosed(patty: PattyServer, connection: Connection) {
-        println("server closed")
-    }
+  int getLengthSize();
 
-    override fun sessionAdded(patty: PattyServer, connection: Connection) {
-        println("session added!")
-    }
+  int getLengthSize(int length);
 
-    override fun sessionRemoved(patty: PattyServer, connection: Connection) {
-        println("session removed!")
-        patty.close()
-    }
+  int readLength(@NotNull ByteBuf input, int available);
+
+  void writeLength(@NotNull ByteBuf output, int length);
+
+  int readPacketId(@NotNull ByteBuf input);
+
+  void writePacketId(@NotNull ByteBuf output, int packetId);
 }

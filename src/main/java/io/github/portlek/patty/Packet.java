@@ -23,27 +23,28 @@
  *
  */
 
-package io.github.portlek.patty
+package io.github.portlek.patty;
 
-class TestServerListener : ServerListener {
-    override fun serverBound(patty: PattyServer, connection: Connection) {
-        println("server bound!")
-    }
+import io.netty.buffer.ByteBuf;
+import org.jetbrains.annotations.NotNull;
 
-    override fun serverClosing(patty: PattyServer) {
-        println("server closing!")
-    }
+public abstract class Packet {
 
-    override fun serverClosed(patty: PattyServer, connection: Connection) {
-        println("server closed")
-    }
+  private final int id;
 
-    override fun sessionAdded(patty: PattyServer, connection: Connection) {
-        println("session added!")
-    }
+  protected Packet(@NotNull final Class<? extends Packet> cls) {
+    this.id = PacketRegistry.INSTANCE.getPacketId(PacketRegistry.INSTANCE.getPacketId(cls));
+  }
 
-    override fun sessionRemoved(patty: PattyServer, connection: Connection) {
-        println("session removed!")
-        patty.close()
-    }
+  public abstract void read(@NotNull ByteBuf buffer, Connection connection);
+
+  public abstract void write(@NotNull ByteBuf buffer, Connection connection);
+
+  public boolean hasPriority() {
+    return false;
+  }
+
+  public int getId() {
+    return this.id;
+  }
 }

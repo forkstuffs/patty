@@ -26,42 +26,41 @@
 package io.github.portlek.patty
 
 import io.github.portlek.patty.packets.TestPingPacket
-import io.netty.buffer.ByteBuf
 
 class TestServerSessionListener : SessionListener {
-  override fun packetReceived(packet: Packet, connection: Connection) {
-    if (packet is TestPingPacket) {
-      println("server packet received ${packet.message}")
-      connection.sendPacket(packet)
+    override fun packetReceived(packet: Packet, connection: Connection) {
+        if (packet is TestPingPacket) {
+            println("server packet received ${packet.message}")
+            connection.sendPacket(packet)
+        }
     }
-  }
 
-  override fun packetSending(packet: Packet, connection: Connection): Boolean {
-    if (packet is TestPingPacket) {
-      println("server packet sending ${packet.message}")
+    override fun packetSending(packet: Packet, connection: Connection): Boolean {
+        if (packet is TestPingPacket) {
+            println("server packet sending ${packet.message}")
+        }
+        return true
     }
-    return true
-  }
 
-  override fun packetSent(packet: Packet, connection: Connection) {
-    if (packet is TestPingPacket) {
-      println("server packet sent ${packet.message}")
+    override fun packetSent(packet: Packet, connection: Connection) {
+        if (packet is TestPingPacket) {
+            println("server packet sent ${packet.message}")
+        }
     }
-  }
 
-  override fun packetError(throwable: Throwable, connection: Connection): Boolean {
-    TODO("Not yet implemented")
-  }
+    override fun packetError(throwable: Throwable, connection: Connection): Boolean {
+        TODO("Not yet implemented")
+    }
 
-  override fun connected(connection: Connection) {
-    println("server connected")
-  }
+    override fun connected(connection: Connection) {
+        println("server connected")
+    }
 
-  override fun disconnecting(connection: Connection, reason: String, cause: Throwable?) {
-    println("server disconnecting")
-  }
+    override fun disconnecting(connection: Connection, reason: String, cause: Throwable?) {
+        println("server disconnecting")
+    }
 
-  override fun disconnected(connection: Connection, reason: String, cause: Throwable?) {
-    println("server disconnected")
-  }
+    override fun disconnected(connection: Connection, reason: String, cause: Throwable?) {
+        println("server disconnected")
+    }
 }

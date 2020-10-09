@@ -1,0 +1,88 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2020 Hasan Demirtaş
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ */
+
+package io.github.portlek.patty.tcp;
+
+import io.github.portlek.patty.*;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+public final class TcpProtocol implements Protocol {
+
+  @Nullable
+  private final PacketEncryptor encryptor;
+
+  @NotNull
+  private final PacketSizer sizer;
+
+  @NotNull
+  private final PacketHeader header;
+
+  @Nullable
+  private final ServerListener serverListener;
+
+  @Nullable
+  private final SessionListener sessionListener;
+
+  public TcpProtocol(@Nullable final PacketEncryptor encryptor, @NotNull final PacketSizer sizer,
+                     @NotNull final PacketHeader header, @Nullable final ServerListener serverListener,
+                     @Nullable final SessionListener sessionListener) {
+    this.encryptor = encryptor;
+    this.sizer = sizer;
+    this.header = header;
+    this.serverListener = serverListener;
+    this.sessionListener = sessionListener;
+  }
+
+  @Nullable
+  @Override
+  public PacketEncryptor getEncryptor() {
+    return this.encryptor;
+  }
+
+  @NotNull
+  @Override
+  public PacketSizer getSizer() {
+    return this.sizer;
+  }
+
+  @NotNull
+  @Override
+  public PacketHeader getHeader() {
+    return this.header;
+  }
+
+  @Nullable
+  @Override
+  public ServerListener getServerListener() {
+    return this.serverListener;
+  }
+
+  @Nullable
+  @Override
+  public SessionListener getSessionListener() {
+    return this.sessionListener;
+  }
+}

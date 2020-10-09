@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Shiru ka
+ * Copyright (c) 2020 Hasan Demirtaş
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,14 +26,14 @@ package io.github.portlek.patty
 import io.github.portlek.patty.packets.TestPingPacket
 
 enum class Packets(
-  val id: Int,
-  val cls: Class<out Packet>
+        val id: Int,
+        val cls: Class<out Packet>
 ) {
-  TEST(0, TestPingPacket::class.java);
+    TEST(0, TestPingPacket::class.java);
 
-  companion object {
-    fun registerAll() {
-      values().forEach { PacketRegistry.register(it.cls, it.id) }
+    companion object {
+        fun registerAll() {
+            values().forEach { PacketRegistry.register(it.cls, it.id) }
+        }
     }
-  }
 }

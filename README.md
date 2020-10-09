@@ -3,7 +3,9 @@
 
 [![Build Status](https://travis-ci.com/portlek/patty.svg?branch=master)](https://travis-ci.com/portlek/patty)
 ![Maven Central](https://img.shields.io/maven-central/v/io.github.portlek/patty?label=version)
+
 ## How to use
+
 ```xml
 <dependency>
     <groupId>io.github.portlek</groupId>
@@ -11,6 +13,7 @@
     <version>${version}</version>
 </dependency>
 ```
+
 ```groovy
 implementation("io.github.portlek:patty:${version}")
 ```

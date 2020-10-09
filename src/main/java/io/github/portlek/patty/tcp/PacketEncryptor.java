@@ -23,27 +23,15 @@
  *
  */
 
-package io.github.portlek.patty
+package io.github.portlek.patty.tcp;
 
-class TestServerListener : ServerListener {
-    override fun serverBound(patty: PattyServer, connection: Connection) {
-        println("server bound!")
-    }
+public interface PacketEncryptor {
 
-    override fun serverClosing(patty: PattyServer) {
-        println("server closing!")
-    }
+  int getDecryptOutputSize(int length);
 
-    override fun serverClosed(patty: PattyServer, connection: Connection) {
-        println("server closed")
-    }
+  int getEncryptOutputSize(int length);
 
-    override fun sessionAdded(patty: PattyServer, connection: Connection) {
-        println("session added!")
-    }
+  int decrypt(byte[] input, int inputOffset, int inputLength, byte[] output, int outputOffset);
 
-    override fun sessionRemoved(patty: PattyServer, connection: Connection) {
-        println("session removed!")
-        patty.close()
-    }
+  int encrypt(byte[] input, int inputOffset, int inputLength, byte[] output, int outputOffset);
 }

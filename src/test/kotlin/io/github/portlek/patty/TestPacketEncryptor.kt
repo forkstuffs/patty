@@ -30,21 +30,21 @@ import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
 
 class TestPacketEncryptor(key: Key) : PacketEncryptor {
-  private var inCipher = Cipher.getInstance("AES/CFB8/NoPadding")
-  private var outCipher = Cipher.getInstance("AES/CFB8/NoPadding")
+    private var inCipher = Cipher.getInstance("AES/CFB8/NoPadding")
+    private var outCipher = Cipher.getInstance("AES/CFB8/NoPadding")
 
-  init {
-    inCipher.init(Cipher.DECRYPT_MODE, key, IvParameterSpec(key.encoded))
-    outCipher.init(Cipher.ENCRYPT_MODE, key, IvParameterSpec(key.encoded))
-  }
+    init {
+        inCipher.init(Cipher.DECRYPT_MODE, key, IvParameterSpec(key.encoded))
+        outCipher.init(Cipher.ENCRYPT_MODE, key, IvParameterSpec(key.encoded))
+    }
 
-  override fun getDecryptOutputSize(length: Int) = inCipher.getOutputSize(length)
+    override fun getDecryptOutputSize(length: Int) = inCipher.getOutputSize(length)
 
-  override fun getEncryptOutputSize(length: Int) = outCipher.getOutputSize(length)
+    override fun getEncryptOutputSize(length: Int) = outCipher.getOutputSize(length)
 
-  override fun decrypt(input: ByteArray, inputOffset: Int, inputLength: Int, output: ByteArray, outputOffset: Int) =
-    inCipher.update(input, inputOffset, inputLength, output, outputOffset)
+    override fun decrypt(input: ByteArray, inputOffset: Int, inputLength: Int, output: ByteArray, outputOffset: Int) =
+            inCipher.update(input, inputOffset, inputLength, output, outputOffset)
 
-  override fun encrypt(input: ByteArray, inputOffset: Int, inputLength: Int, output: ByteArray, outputOffset: Int) =
-    outCipher.update(input, inputOffset, inputLength, output, outputOffset)
+    override fun encrypt(input: ByteArray, inputOffset: Int, inputLength: Int, output: ByteArray, outputOffset: Int) =
+            outCipher.update(input, inputOffset, inputLength, output, outputOffset)
 }

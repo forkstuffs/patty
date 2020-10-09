@@ -28,27 +28,27 @@ import java.security.NoSuchAlgorithmException
 import javax.crypto.KeyGenerator
 
 object TestRunner {
-  @JvmStatic
-  fun main(args: Array<String>) {
-    var key = try {
-      val gen = KeyGenerator.getInstance("AES")
-      gen.init(128)
-      gen.generateKey()
-    } catch (e: NoSuchAlgorithmException) {
-      System.err.println("AES algorithm not supported, exiting...")
-      return
+    @JvmStatic
+    fun main(args: Array<String>) {
+        var key = try {
+            val gen = KeyGenerator.getInstance("AES")
+            gen.init(128)
+            gen.generateKey()
+        } catch (e: NoSuchAlgorithmException) {
+            System.err.println("AES algorithm not supported, exiting...")
+            return
+        }
+        Packets.registerAll()
+        PattyServer.tcp("127.0.0.1", 25565,
+                packetHeader = TestPacketHeader(),
+                packetSizer = TestPacketSizer(),
+                serverListener = TestServerListener(),
+                sessionListener = TestServerSessionListener())
+                .bind()
+        PattyClient.tcp("127.0.0.1", 25565,
+                packetHeader = TestPacketHeader(),
+                packetSizer = TestPacketSizer(),
+                sessionListener = TestClientSessionListener())
+                .connect()
     }
-    Packets.registerAll()
-    PattyServer.tcp("127.0.0.1", 25565,
-      packetHeader = TestPacketHeader(),
-      packetSizer = TestPacketSizer(),
-      serverListener = TestServerListener(),
-      sessionListener = TestServerSessionListener())
-      .bind()
-    PattyClient.tcp("127.0.0.1", 25565,
-      packetHeader = TestPacketHeader(),
-      packetSizer = TestPacketSizer(),
-      sessionListener = TestClientSessionListener())
-      .connect()
-  }
 }

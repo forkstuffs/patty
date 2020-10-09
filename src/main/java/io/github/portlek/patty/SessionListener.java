@@ -22,28 +22,36 @@
  * SOFTWARE.
  *
  */
+package io.github.portlek.patty;
 
-package io.github.portlek.patty
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-class TestServerListener : ServerListener {
-    override fun serverBound(patty: PattyServer, connection: Connection) {
-        println("server bound!")
-    }
+public interface SessionListener {
 
-    override fun serverClosing(patty: PattyServer) {
-        println("server closing!")
-    }
+  void packetReceived(@NotNull Packet packet, @NotNull Connection connection);
 
-    override fun serverClosed(patty: PattyServer, connection: Connection) {
-        println("server closed")
-    }
+  default boolean packetSending(@NotNull final Packet packet, @NotNull final Connection connection) {
+    return true;
+  }
 
-    override fun sessionAdded(patty: PattyServer, connection: Connection) {
-        println("session added!")
-    }
+  void packetSent(@NotNull Packet packet, @NotNull Connection connection);
 
-    override fun sessionRemoved(patty: PattyServer, connection: Connection) {
-        println("session removed!")
-        patty.close()
-    }
+  default boolean packetError(@NotNull final Throwable throwable, @NotNull final Connection connection) {
+    return true;
+  }
+
+  void connected(@NotNull Connection connection);
+
+  void disconnecting(@NotNull Connection connection, @NotNull String reason, @Nullable Throwable cause);
+
+  default void disconnecting(@NotNull final Connection connection, @NotNull final String reason) {
+    this.disconnecting(connection, reason, null);
+  }
+
+  void disconnected(@NotNull Connection connection, @NotNull String reason, @Nullable Throwable cause);
+
+  default void disconnected(@NotNull final Connection connection, @NotNull final String reason) {
+    this.disconnected(connection, reason, null);
+  }
 }
