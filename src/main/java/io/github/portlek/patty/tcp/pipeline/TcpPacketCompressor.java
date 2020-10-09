@@ -85,7 +85,7 @@ public final class TcpPacketCompressor extends ByteToMessageCodec<ByteBuf> {
       out.add(input.readBytes(input.readableBytes()));
       return;
     }
-    if (size < this.connection.getCompressionThreshold()) {
+    if (size < this.connection.compressionThreshold) {
       throw new DecoderException("Badly compressed packet: size of $size is below threshold of ${connection.compressionThreshold}.");
     }
     if (size > TcpPacketCompressor.MAX_COMPRESSED_SIZE) {
