@@ -58,7 +58,7 @@ public final class TcpPacketCompressor extends ByteToMessageCodec<ByteBuf> {
   @Override
   public void encode(final ChannelHandlerContext ctx, final ByteBuf input, final ByteBuf out) {
     final int readable = input.readableBytes();
-    if (readable < this.connection.getCompressionThreshold()) {
+    if (readable < this.connection.compressionThreshold) {
       ReadWrite.writeVarInt(out, 0);
       out.writeBytes(input);
     } else {
