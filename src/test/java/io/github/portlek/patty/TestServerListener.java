@@ -23,27 +23,35 @@
  *
  */
 
-package io.github.portlek.patty
+package io.github.portlek.patty;
 
-class TestServerListener : ServerListener {
-    override fun serverBound(patty: PattyServer, connection: Connection) {
-        println("server bound!")
-    }
+import org.jetbrains.annotations.NotNull;
 
-    override fun serverClosing(patty: PattyServer) {
-        println("server closing!")
-    }
+public final class TestServerListener implements ServerListener {
 
-    override fun serverClosed(patty: PattyServer, connection: Connection) {
-        println("server closed")
-    }
+  @Override
+  public void serverBound(@NotNull final PattyServer patty, @NotNull final Connection connection) {
+    System.out.println("server bound!");
+  }
 
-    override fun sessionAdded(patty: PattyServer, connection: Connection) {
-        println("session added!")
-    }
+  @Override
+  public void serverClosing(@NotNull final PattyServer patty) {
+    System.out.println("server closing!");
+  }
 
-    override fun sessionRemoved(patty: PattyServer, connection: Connection) {
-        println("session removed!")
-        patty.close()
-    }
+  @Override
+  public void serverClosed(@NotNull final PattyServer patty, @NotNull final Connection connection) {
+    System.out.println("server closed");
+  }
+
+  @Override
+  public void sessionAdded(@NotNull final PattyServer patty, @NotNull final Connection connection) {
+    System.out.println("session added!");
+  }
+
+  @Override
+  public void sessionRemoved(@NotNull final PattyServer patty, @NotNull final Connection connection) {
+    System.out.println("session removed!");
+    patty.close();
+  }
 }

@@ -23,6 +23,8 @@
  *
  */
 
-package io.github.portlek.patty
+package io.github.portlek.patty;
 
-class TestPacketSizer : PacketSizer
+public final class TestPacketSizer implements PacketSizer {
+
+}
