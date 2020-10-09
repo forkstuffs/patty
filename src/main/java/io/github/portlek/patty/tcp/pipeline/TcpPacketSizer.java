@@ -41,7 +41,7 @@ public final class TcpPacketSizer extends ByteToMessageCodec<ByteBuf> {
   private final Protocol protocol;
 
   public TcpPacketSizer(@NotNull final Patty patty) {
-    this.protocol = patty.getProtocol();
+    this.protocol = patty.protocol;
   }
 
   @Override
