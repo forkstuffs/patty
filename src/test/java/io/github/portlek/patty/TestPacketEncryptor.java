@@ -23,28 +23,64 @@
  *
  */
 
-package io.github.portlek.patty
+package io.github.portlek.patty;
 
-import java.security.Key
-import javax.crypto.Cipher
-import javax.crypto.spec.IvParameterSpec
+import io.github.portlek.patty.tcp.PacketEncryptor;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.NoSuchAlgorithmException;
+import javax.crypto.Cipher;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.ShortBufferException;
+import javax.crypto.spec.IvParameterSpec;
+import org.jetbrains.annotations.NotNull;
 
-class TestPacketEncryptor(key: Key) : PacketEncryptor {
-    private var inCipher = Cipher.getInstance("AES/CFB8/NoPadding")
-    private var outCipher = Cipher.getInstance("AES/CFB8/NoPadding")
+public final class TestPacketEncryptor implements PacketEncryptor {
 
-    init {
-        inCipher.init(Cipher.DECRYPT_MODE, key, IvParameterSpec(key.encoded))
-        outCipher.init(Cipher.ENCRYPT_MODE, key, IvParameterSpec(key.encoded))
+  @NotNull
+  private final Key key;
+
+  @NotNull
+  private final Cipher inCipher;
+
+  @NotNull
+  private final Cipher outCipher;
+
+  public TestPacketEncryptor(@NotNull final Key key) throws NoSuchPaddingException, NoSuchAlgorithmException,
+    InvalidAlgorithmParameterException, InvalidKeyException {
+    this.key = key;
+      this.inCipher = Cipher.getInstance("AES/CFB8/NoPadding");
+      this.outCipher = Cipher.getInstance("AES/CFB8/NoPadding");
+      this.inCipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(key.getEncoded()));
+      this.outCipher.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(key.getEncoded()));
+  }
+
+  @Override
+  public int getDecryptOutputSize(final int length) {
+    return this.inCipher.getOutputSize(length);
+  }
+
+  @Override
+  public int getEncryptOutputSize(final int length) {
+    return this.outCipher.getOutputSize(length);
+  }
+
+  @Override
+  public int decrypt(final byte[] input, final int inputOffset, final int inputLength, final byte[] output, final int outputOffset) {
+    try {
+      return this.inCipher.update(input, inputOffset, inputLength, output, outputOffset);
+    } catch (final ShortBufferException e) {
+      throw new RuntimeException(e);
     }
+  }
 
-    override fun getDecryptOutputSize(length: Int) = inCipher.getOutputSize(length)
-
-    override fun getEncryptOutputSize(length: Int) = outCipher.getOutputSize(length)
-
-    override fun decrypt(input: ByteArray, inputOffset: Int, inputLength: Int, output: ByteArray, outputOffset: Int) =
-            inCipher.update(input, inputOffset, inputLength, output, outputOffset)
-
-    override fun encrypt(input: ByteArray, inputOffset: Int, inputLength: Int, output: ByteArray, outputOffset: Int) =
-            outCipher.update(input, inputOffset, inputLength, output, outputOffset)
+  @Override
+  public int encrypt(final byte[] input, final int inputOffset, final int inputLength, final byte[] output, final int outputOffset) {
+    try {
+      return this.outCipher.update(input, inputOffset, inputLength, output, outputOffset);
+    } catch (final ShortBufferException e) {
+      throw new RuntimeException(e);
+    }
+  }
 }
