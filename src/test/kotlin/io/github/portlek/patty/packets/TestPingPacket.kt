@@ -26,6 +26,7 @@
 package io.github.portlek.patty.packets
 
 import io.github.portlek.patty.Connection
+import io.github.portlek.patty.Packet
 import io.netty.buffer.ByteBuf
 import java.nio.charset.StandardCharsets
 
