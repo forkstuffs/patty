@@ -44,5 +44,5 @@ public interface Protocol {
   ServerListener getServerListener();
 
   @Nullable
-  SessionListener getSessionListener();
+  ConnectionListener getConnectionListener();
 }

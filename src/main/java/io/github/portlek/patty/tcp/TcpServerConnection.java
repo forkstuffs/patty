@@ -27,6 +27,7 @@ package io.github.portlek.patty.tcp;
 
 import io.github.portlek.patty.Connection;
 import io.github.portlek.patty.PattyServer;
+import io.github.portlek.patty.ServerListener;
 import io.github.portlek.patty.tcp.pipeline.TcpPacketCodec;
 import io.github.portlek.patty.tcp.pipeline.TcpPacketEncryptor;
 import io.github.portlek.patty.tcp.pipeline.TcpPacketSizer;
@@ -37,9 +38,9 @@ import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
 import java.net.SocketAddress;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public final class TcpServerConnection extends Connection {
 
@@ -54,16 +55,10 @@ public final class TcpServerConnection extends Connection {
   }
 
   @Override
-  public void channelInactive(@Nullable final ChannelHandlerContext ctx) throws Exception {
-    super.channelInactive(ctx);
-    this.patty.connections.remove(this);
-    if (this.patty.protocol.getServerListener() != null) {
-      this.patty.protocol.getServerListener().sessionRemoved(this.patty, this);
-    }
-  }
-
-  @Override
   public void connect(final boolean wait) {
+    if (this.channel != null) {
+      return;
+    }
     final ChannelFuture future = new ServerBootstrap()
       .channel(this.tcpChannel)
       .childHandler(new ChannelInitializer<Channel>() {
@@ -81,21 +76,23 @@ public final class TcpServerConnection extends Connection {
         }
       })
       .group(this.eventLoop)
-      .bind(this.address);
+      .localAddress(this.address)
+      .bind();
+    final ServerListener serverListener = this.patty.protocol.getServerListener();
     if (wait) {
       try {
         future.sync();
       } catch (final InterruptedException e) {
         e.printStackTrace();
       }
-      if (this.patty.protocol.getServerListener() != null) {
-        this.patty.protocol.getServerListener().serverBound(this.patty, this);
+      if (serverListener != null) {
+        serverListener.serverBound(this.patty, this);
       }
     } else {
-      future.addListener(it -> {
+      future.addListener((ChannelFutureListener) it -> {
         if (it.isSuccess()) {
-          if (this.patty.protocol.getServerListener() != null) {
-            this.patty.protocol.getServerListener().serverBound(this.patty, this);
+          if (serverListener != null) {
+            serverListener.serverBound(this.patty, this);
           }
         } else {
           System.err.println("[ERROR] Failed to asynchronously bind connection listener.");
@@ -109,6 +106,7 @@ public final class TcpServerConnection extends Connection {
 
   @Override
   public void close(final boolean wait) {
+    final ServerListener serverListener = this.patty.protocol.getServerListener();
     if (this.channel != null) {
       if (this.channel.isOpen()) {
         final ChannelFuture future = this.channel.close();
@@ -118,14 +116,19 @@ public final class TcpServerConnection extends Connection {
           } catch (final InterruptedException e) {
             e.printStackTrace();
           }
-          if (this.patty.protocol.getServerListener() != null) {
-            this.patty.protocol.getServerListener().serverClosed(this.patty, this);
+          if (serverListener != null) {
+            serverListener.serverClosed(this.patty, this);
           }
         } else {
-          future.addListener(listener -> {
+          future.addListener((ChannelFutureListener) listener -> {
             if (listener.isSuccess()) {
-              if (this.patty.protocol.getServerListener() != null) {
-                this.patty.protocol.getServerListener().serverClosed(this.patty, this);
+              if (serverListener != null) {
+                serverListener.serverClosed(this.patty, this);
+              }
+            } else {
+              System.err.println("[ERROR] Failed to asynchronously close connection listener.");
+              if (future.cause() != null) {
+                future.cause().printStackTrace();
               }
             }
           });
@@ -138,24 +141,16 @@ public final class TcpServerConnection extends Connection {
       try {
         future.sync();
       } catch (final InterruptedException e) {
-        e.printStackTrace();
       }
-      if (this.patty.protocol.getServerListener() != null) {
-        this.patty.protocol.getServerListener().serverClosed(this.patty, this);
-      } else {
-        future.addListener(it -> {
-          if (it.isSuccess()) {
-            if (this.patty.protocol.getServerListener() != null) {
-              this.patty.protocol.getServerListener().serverClosed(this.patty, this);
-              return;
-            }
-            System.err.println("[ERROR] Failed to asynchronously close connection listener.");
-            if (it.cause() != null) {
-              it.cause().printStackTrace();
-            }
+    } else {
+      future.addListener((GenericFutureListener) it -> {
+        if (it.isSuccess()) {
+          System.err.println("[ERROR] Failed to asynchronously close connection listener.");
+          if (it.cause() != null) {
+            it.cause().printStackTrace();
           }
-        });
-      }
+        }
+      });
     }
   }
 
@@ -163,8 +158,21 @@ public final class TcpServerConnection extends Connection {
   public void channelActive(final ChannelHandlerContext ctx) {
     super.channelActive(ctx);
     this.patty.connections.add(this);
+    final ServerListener serverListener = this.patty.protocol.getServerListener();
+    if (serverListener != null) {
+      serverListener.sessionAdded(this.patty, this);
+    }
+  }
+
+  @Override
+  public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
+    super.channelInactive(ctx);
+    this.patty.connections.remove(this);
+    if (this.isConnected()) {
+      this.disconnect("Connection closed.");
+    }
     if (this.patty.protocol.getServerListener() != null) {
-      this.patty.protocol.getServerListener().sessionAdded(this.patty, this);
+      this.patty.protocol.getServerListener().sessionRemoved(this.patty, this);
     }
   }
 }

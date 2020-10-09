@@ -25,10 +25,7 @@
 
 package io.github.portlek.patty.tcp.pipeline;
 
-import io.github.portlek.patty.Connection;
-import io.github.portlek.patty.Packet;
-import io.github.portlek.patty.PacketRegistry;
-import io.github.portlek.patty.Protocol;
+import io.github.portlek.patty.*;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageCodec;
@@ -56,8 +53,9 @@ public final class TcpPacketCodec extends ByteToMessageCodec<Packet> {
       packet.write(buf, this.connection);
     } catch (final Throwable t) {
       buf.writerIndex(initial);
-      if (this.protocol.getSessionListener() != null) {
-        if (this.protocol.getSessionListener().packetError(t, this.connection)) {
+      final ConnectionListener connectionListener = this.protocol.getConnectionListener();
+      if (connectionListener != null) {
+        if (connectionListener.packetError(t, this.connection)) {
           throw t;
         }
       }
@@ -65,7 +63,7 @@ public final class TcpPacketCodec extends ByteToMessageCodec<Packet> {
   }
 
   @Override
-  public void decode(final ChannelHandlerContext ctx, final ByteBuf buf, final List<Object> out) {
+  public void decode(final ChannelHandlerContext ctx, final ByteBuf buf, final List<Object> out) throws Exception {
     final int initial = buf.readerIndex();
     try {
       final int id = this.protocol.getHeader().readPacketId(buf);
@@ -78,19 +76,22 @@ public final class TcpPacketCodec extends ByteToMessageCodec<Packet> {
         buf.readerIndex(initial);
         return;
       }
-      final Optional<Packet> packet = PacketRegistry.createPacket(packetCls.get());
-      packet.ifPresent(pckt ->
-        pckt.read(buf, this.connection));
+      final Optional<Packet> packetOptional = PacketRegistry.createPacket(packetCls.get());
+      if (!packetOptional.isPresent()) {
+        buf.readerIndex(initial);
+        return;
+      }
+      final Packet packet = packetOptional.get();
+      packet.read(buf, this.connection);
       if (buf.readableBytes() > 0) {
         throw new IllegalStateException("Packet \"" + packet.getClass().getSimpleName() + "\" not fully read.");
       }
       out.add(packet);
     } catch (final Throwable t) {
       buf.readerIndex(buf.readerIndex() + buf.readableBytes());
-      if (this.protocol.getSessionListener() != null) {
-        if (this.protocol.getSessionListener().packetError(t, this.connection)) {
-          throw t;
-        }
+      final ConnectionListener connectionListener = this.protocol.getConnectionListener();
+      if (connectionListener != null && connectionListener.packetError(t, this.connection)) {
+        throw t;
       }
     }
   }

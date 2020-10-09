@@ -26,29 +26,23 @@
 package io.github.portlek.patty;
 
 import io.github.portlek.patty.packets.TestPingPacket;
-import java.util.Objects;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class TestClientSessionListener implements SessionListener {
+public final class TestServerConnectionListener implements ConnectionListener {
 
   @Override
   public void packetReceived(@NotNull final Packet packet, @NotNull final Connection connection) {
     if (packet instanceof TestPingPacket) {
-      final TestPingPacket pingPacket = (TestPingPacket) packet;
-      System.out.println("client packet received " + pingPacket.message);
-      if (Objects.equals(pingPacket.message, "hello")) {
-        connection.sendPacket(new TestPingPacket("exit"));
-      } else if (Objects.equals(pingPacket.message, "exit")) {
-        connection.disconnect("Client exits from the connection!");
-      }
+      System.out.println("server packet received " + ((TestPingPacket) packet).message);
+      connection.sendPacket(packet);
     }
   }
 
   @Override
   public boolean packetSending(@NotNull final Packet packet, @NotNull final Connection connection) {
     if (packet instanceof TestPingPacket) {
-      System.out.println("client packet sending " + ((TestPingPacket) packet).message);
+      System.out.println("server packet sending " + ((TestPingPacket) packet).message);
     }
     return true;
   }
@@ -56,31 +50,27 @@ public final class TestClientSessionListener implements SessionListener {
   @Override
   public void packetSent(@NotNull final Packet packet, @NotNull final Connection connection) {
     if (packet instanceof TestPingPacket) {
-      System.out.println("client packet sent " + ((TestPingPacket) packet).message);
+      System.out.println("server packet sent " + ((TestPingPacket) packet).message);
     }
   }
 
   @Override
-  public boolean packetError(@NotNull final Throwable throwable, @NotNull final Connection connection) {
+  public boolean packetError(final @NotNull Throwable throwable, final @NotNull Connection connection) {
     return true;
   }
 
   @Override
   public void connected(@NotNull final Connection connection) {
-    System.out.println("client connected");
-    connection.sendPacket(new TestPingPacket("hello"));
+    System.out.println("server connected");
   }
 
   @Override
   public void disconnecting(@NotNull final Connection connection, @NotNull final String reason, @Nullable final Throwable cause) {
-    System.out.println("client disconnecting");
+    System.out.println("server disconnecting: " + reason);
   }
 
   @Override
   public void disconnected(@NotNull final Connection connection, @NotNull final String reason, @Nullable final Throwable cause) {
-    System.out.println("client disconnected");
-    if (cause != null) {
-      cause.printStackTrace();
-    }
+    System.out.println("server disconnected");
   }
 }

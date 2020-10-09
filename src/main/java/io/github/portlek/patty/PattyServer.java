@@ -54,9 +54,9 @@ public final class PattyServer extends Patty {
   @NotNull
   public static PattyServer tcp(@NotNull final String ip, final int port, @NotNull final PacketHeader packetHeader,
                                 @Nullable final PacketEncryptor packetEncryptor, @NotNull final PacketSizer packetSizer,
-                                @Nullable final ServerListener serverListener, @Nullable final SessionListener sessionListener) {
+                                @Nullable final ServerListener serverListener, @Nullable final ConnectionListener connectionListener) {
     return PattyServer.tcp(ip, port, new TcpProtocol(packetEncryptor, packetSizer, packetHeader, serverListener,
-      sessionListener));
+      connectionListener));
   }
 
   @NotNull
@@ -69,8 +69,8 @@ public final class PattyServer extends Patty {
   }
 
   public void bind(final boolean wait) {
-    this.connection = new TcpServerConnection(this, new InetSocketAddress(this.ip, this.port));
-    this.connection.connect(wait);
+    (this.connection = new TcpServerConnection(this, new InetSocketAddress(this.ip, this.port)))
+      .connect(wait);
   }
 
   public void close() {

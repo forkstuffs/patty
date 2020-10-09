@@ -82,10 +82,11 @@ public final class TcpClientConnection extends Connection {
           }
         })
         .group(this.eventLoop)
-        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, this.connectTimeout * 1000);
+        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, this.connectTimeout * 1000)
+        .remoteAddress(this.address);
       final Runnable connectTask = () -> {
         try {
-          if (bootstrap.connect(this.address).sync().isSuccess()) {
+          if (bootstrap.connect().sync().isSuccess()) {
             while (!this.isConnected() && !this.disconnected) {
               try {
                 Thread.sleep(5);

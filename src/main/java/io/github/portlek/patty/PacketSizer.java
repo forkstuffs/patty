@@ -26,5 +26,5 @@
 package io.github.portlek.patty;
 
 public interface PacketSizer {
-    
+
 }
