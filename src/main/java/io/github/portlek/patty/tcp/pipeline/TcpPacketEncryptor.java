@@ -43,7 +43,7 @@ public final class TcpPacketEncryptor extends ByteToMessageCodec<ByteBuf> {
   private byte[] encryptedArray = new byte[0];
 
   public TcpPacketEncryptor(@NotNull final Patty patty) {
-    this.protocol = patty.getProtocol();
+    this.protocol = patty.protocol;
   }
 
   @Override
