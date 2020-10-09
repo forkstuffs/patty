@@ -23,32 +23,58 @@
  *
  */
 
-package io.github.portlek.patty
+package io.github.portlek.patty;
 
-import io.netty.buffer.ByteBuf
+import io.github.portlek.patty.util.ReadWrite;
+import io.netty.buffer.ByteBuf;
+import org.jetbrains.annotations.NotNull;
 
-class TestPacketHeader : PacketHeader {
-    override val isLengthVariable = true
-    override val lengthSize = 5
+public final class TestPacketHeader implements PacketHeader {
 
-    override fun getLengthSize(length: Int) =
-            when {
-                length and -128 == 0 -> 1
-                length and -16384 == 0 -> 2
-                length and -2097152 == 0 -> 3
-                length and -268435456 == 0 -> 4
-                else -> 5
-            }
+  @Override
+  public boolean isLengthVariable() {
+    return true;
+  }
 
-    override fun readLength(input: ByteBuf, available: Int) = ReadWrite.readVarInt(input)
+  @Override
+  public int getLengthSize() {
+    return 5;
+  }
 
-    override fun writeLength(output: ByteBuf, length: Int) {
-        ReadWrite.writeVarInt(output, length)
+  @Override
+  public int getLengthSize(final int length) {
+    final int size;
+    if ((length & -128) == 0) {
+      size = 1;
+    } else if ((length & -16384) == 0) {
+      size = 2;
+    } else if ((length & -2097152) == 0) {
+      size = 3;
+    } else if ((length & -268435456) == 0) {
+      size = 4;
+    } else {
+      size = 5;
     }
+    return size;
+  }
 
-    override fun readPacketId(input: ByteBuf) = ReadWrite.readVarInt(input)
+  @Override
+  public int readLength(@NotNull final ByteBuf input, final int available) {
+    return ReadWrite.readVarInt(input);
+  }
 
-    override fun writePacketId(output: ByteBuf, packetId: Int) {
-        ReadWrite.writeVarInt(output, packetId)
-    }
+  @Override
+  public void writeLength(@NotNull final ByteBuf output, final int length) {
+    ReadWrite.writeVarInt(output, length);
+  }
+
+  @Override
+  public int readPacketId(@NotNull final ByteBuf input) {
+    return ReadWrite.readVarInt(input);
+  }
+
+  @Override
+  public void writePacketId(@NotNull final ByteBuf output, final int packetId) {
+    ReadWrite.writeVarInt(output, packetId);
+  }
 }
