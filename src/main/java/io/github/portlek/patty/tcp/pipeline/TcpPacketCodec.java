@@ -45,7 +45,7 @@ public final class TcpPacketCodec extends ByteToMessageCodec<Packet> {
 
   public TcpPacketCodec(@NotNull final Connection connection) {
     this.connection = connection;
-    this.protocol = connection.getPatty().getProtocol();
+    this.protocol = connection.patty.protocol;
   }
 
   @Override

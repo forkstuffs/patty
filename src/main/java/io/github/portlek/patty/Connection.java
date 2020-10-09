@@ -46,7 +46,7 @@ public abstract class Connection extends SimpleChannelInboundHandler<Packet> {
   protected final BlockingQueue<Packet> packets = new LinkedBlockingQueue<>();
 
   @NotNull
-  protected final Patty patty;
+  public final Patty patty;
 
   @NotNull
   protected final SocketAddress address;
