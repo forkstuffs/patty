@@ -35,7 +35,7 @@ import org.jetbrains.annotations.Nullable;
 public final class TestPingPacket extends Packet {
 
   @Nullable
-  private String message;
+  public String message;
 
   public TestPingPacket(@Nullable final String message) {
     super(TestPingPacket.class);

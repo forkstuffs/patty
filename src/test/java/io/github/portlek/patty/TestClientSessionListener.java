@@ -23,50 +23,64 @@
  *
  */
 
-package io.github.portlek.patty
+package io.github.portlek.patty;
 
-import io.github.portlek.patty.packets.TestPingPacket
+import io.github.portlek.patty.packets.TestPingPacket;
+import java.util.Objects;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-class TestClientSessionListener : SessionListener {
-    override fun packetReceived(packet: Packet, connection: Connection) {
-        if (packet is TestPingPacket) {
-            println("client packet received ${packet.message}")
-            if (packet.message!! == "hello") {
-                connection.sendPacket(TestPingPacket("exit"))
-            } else if (packet.message!! == "exit") {
-                connection.disconnect("Client exits from the connection!")
-            }
-        }
+public final class TestClientSessionListener implements SessionListener {
+
+  @Override
+  public void packetReceived(@NotNull final Packet packet, @NotNull final Connection connection) {
+    if (packet instanceof TestPingPacket) {
+      final TestPingPacket pingPacket = (TestPingPacket) packet;
+      System.out.println("client packet received " + pingPacket.message);
+      if (Objects.equals(pingPacket.message, "hello")) {
+        connection.sendPacket(new TestPingPacket("exit"));
+      } else if (Objects.equals(pingPacket.message, "exit")) {
+        connection.disconnect("Client exits from the connection!");
+      }
     }
+  }
 
-    override fun packetSending(packet: Packet, connection: Connection): Boolean {
-        if (packet is TestPingPacket) {
-            println("client packet sending ${packet.message}")
-        }
-        return true
+  @Override
+  public boolean packetSending(@NotNull final Packet packet, @NotNull final Connection connection) {
+    if (packet instanceof TestPingPacket) {
+      System.out.println("client packet sending " + ((TestPingPacket) packet).message);
     }
+    return true;
+  }
 
-    override fun packetSent(packet: Packet, connection: Connection) {
-        if (packet is TestPingPacket) {
-            println("client packet sent ${packet.message}")
-        }
+  @Override
+  public void packetSent(@NotNull final Packet packet, @NotNull final Connection connection) {
+    if (packet instanceof TestPingPacket) {
+      System.out.println("client packet sent " + ((TestPingPacket) packet).message);
     }
+  }
 
-    override fun packetError(throwable: Throwable, connection: Connection): Boolean {
-        TODO("Not yet implemented")
-    }
+  @Override
+  public boolean packetError(@NotNull final Throwable throwable, @NotNull final Connection connection) {
+    return true;
+  }
 
-    override fun connected(connection: Connection) {
-        println("client connected")
-        connection.sendPacket(TestPingPacket("hello"))
-    }
+  @Override
+  public void connected(@NotNull final Connection connection) {
+    System.out.println("client connected");
+    connection.sendPacket(new TestPingPacket("hello"));
+  }
 
-    override fun disconnecting(connection: Connection, reason: String, cause: Throwable?) {
-        println("client disconnecting")
-    }
+  @Override
+  public void disconnecting(@NotNull final Connection connection, @NotNull final String reason, @Nullable final Throwable cause) {
+    System.out.println("client disconnecting");
+  }
 
-    override fun disconnected(connection: Connection, reason: String, cause: Throwable?) {
-        println("client disconnected")
-        cause?.printStackTrace()
+  @Override
+  public void disconnected(@NotNull final Connection connection, @NotNull final String reason, @Nullable final Throwable cause) {
+    System.out.println("client disconnected");
+    if (cause != null) {
+      cause.printStackTrace();
     }
+  }
 }
