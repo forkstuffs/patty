@@ -1,6 +1,4 @@
 /*
- * MIT License
- *
  * Copyright (c) 2020 Hasan Demirtaş
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,29 +21,27 @@
  *
  */
 
-package io.github.portlek.patty.packets
+package io.github.portlek.patty;
 
-import io.github.portlek.patty.Connection
-import io.github.portlek.patty.Packet
-import io.netty.buffer.ByteBuf
-import java.nio.charset.StandardCharsets
+import io.github.portlek.patty.packets.TestPingPacket;
+import java.util.Arrays;
+import org.jetbrains.annotations.NotNull;
 
-class TestPingPacket(
-        var message: String? = null
-) : Packet(TestPingPacket::class.java) {
-    override fun read(buffer: ByteBuf, connection: Connection) {
-        val length = buffer.readInt()
-        val bytes = ByteArray(length)
-        buffer.readBytes(bytes)
-        message = String(bytes, StandardCharsets.UTF_8)
-    }
+public enum Packets {
+  TEST(0, TestPingPacket.class);
 
-    override fun write(buffer: ByteBuf, connection: Connection) {
-        message?.also {
-            buffer.writeInt(it.length)
-            buffer.writeBytes(it.toByteArray(StandardCharsets.UTF_8))
-        }
-    }
+  private final int id;
 
-    override fun toString() = message ?: "null message"
+  @NotNull
+  private final Class<? extends Packet> cls;
+
+  Packets(final int id, @NotNull final Class<? extends Packet> cls) {
+    this.id = id;
+    this.cls = cls;
+  }
+
+  public static void registerAll() {
+    Arrays.stream(Packets.values())
+      .forEach(packet -> PacketRegistry.register(packet.cls, packet.id));
+  }
 }
