@@ -34,18 +34,18 @@ public final class TestRunner {
     gen.init(128);
     final SecretKey key = gen.generateKey();
     Packets.registerAll();
-    PattyServer.tcp("127.0.0.1", 25565,
+    final PattyServer server = PattyServer.tcp("127.0.0.1", 25565,
       new TestPacketHeader(),
       new TestPacketEncryptor(key),
       new TestPacketSizer(),
       new TestServerListener(),
-      new TestServerConnectionListener())
-      .bind();
-    PattyClient.tcp("127.0.0.1", 25565,
+      new TestServerConnectionListener());
+    final PattyClient client = PattyClient.tcp("127.0.0.1", 25565,
       new TestPacketHeader(),
       new TestPacketEncryptor(key),
       new TestPacketSizer(),
-      new TestClientConnectionListener())
-      .connect();
+      new TestClientConnectionListener());
+    server.bind();
+    client.connect();
   }
 }
