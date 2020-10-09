@@ -24,33 +24,26 @@
  */
 package io.github.portlek.patty;
 
-import java.security.NoSuchAlgorithmException;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
 public final class TestRunner {
 
-  public static void main(final String[] args) {
-    final SecretKey key;
-    try {
-      final KeyGenerator gen = KeyGenerator.getInstance("AES");
-      gen.init(128);
-      key = gen.generateKey();
-    } catch (final NoSuchAlgorithmException e) {
-      System.err.println("AES algorithm not supported, exiting...");
-      return;
-    }
+  public static void main(final String[] args) throws Exception {
+    final KeyGenerator gen = KeyGenerator.getInstance("AES");
+    gen.init(128);
+    final SecretKey key = gen.generateKey();
     Packets.registerAll();
     PattyServer.tcp("127.0.0.1", 25565,
       new TestPacketHeader(),
-      null,
+      new TestPacketEncryptor(key),
       new TestPacketSizer(),
       new TestServerListener(),
       new TestServerSessionListener())
       .bind();
     PattyClient.tcp("127.0.0.1", 25565,
       new TestPacketHeader(),
-      null,
+      new TestPacketEncryptor(key),
       new TestPacketSizer(),
       new TestClientSessionListener())
       .connect();
