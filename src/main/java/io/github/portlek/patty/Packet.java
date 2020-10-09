@@ -33,7 +33,7 @@ public abstract class Packet {
   private final int id;
 
   protected Packet(@NotNull final Class<? extends Packet> cls) {
-    this.id = PacketRegistry.INSTANCE.getPacketId(PacketRegistry.INSTANCE.getPacketId(cls));
+    this.id = PacketRegistry.getPacketId(PacketRegistry.getPacketId(cls));
   }
 
   public abstract void read(@NotNull ByteBuf buffer, Connection connection);
