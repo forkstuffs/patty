@@ -23,44 +23,54 @@
  *
  */
 
-package io.github.portlek.patty
+package io.github.portlek.patty;
 
-import io.github.portlek.patty.packets.TestPingPacket
+import io.github.portlek.patty.packets.TestPingPacket;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-class TestServerSessionListener : SessionListener {
-    override fun packetReceived(packet: Packet, connection: Connection) {
-        if (packet is TestPingPacket) {
-            println("server packet received ${packet.message}")
-            connection.sendPacket(packet)
-        }
+public final class TestServerSessionListener implements SessionListener {
+
+  @Override
+  public void packetReceived(final Packet packet, final Connection connection) {
+    if (packet instanceof TestPingPacket) {
+      System.out.println("server packet received " + ((TestPingPacket) packet).message);
+      connection.sendPacket(packet);
     }
+  }
 
-    override fun packetSending(packet: Packet, connection: Connection): Boolean {
-        if (packet is TestPingPacket) {
-            println("server packet sending ${packet.message}")
-        }
-        return true
+  @Override
+  public boolean packetSending(final Packet packet, final Connection connection) {
+    if (packet instanceof TestPingPacket) {
+      System.out.println("server packet sending " + ((TestPingPacket) packet).message);
     }
+    return true;
+  }
 
-    override fun packetSent(packet: Packet, connection: Connection) {
-        if (packet is TestPingPacket) {
-            println("server packet sent ${packet.message}")
-        }
+  @Override
+  public void packetSent(@NotNull final Packet packet, @NotNull final Connection connection) {
+    if (packet instanceof TestPingPacket) {
+      System.out.println("server packet sent " + ((TestPingPacket) packet).message);
     }
+  }
 
-    override fun packetError(throwable: Throwable, connection: Connection): Boolean {
-        TODO("Not yet implemented")
-    }
+  @Override
+  public boolean packetError(final @NotNull Throwable throwable, final @NotNull Connection connection) {
+    return true;
+  }
 
-    override fun connected(connection: Connection) {
-        println("server connected")
-    }
+  @Override
+  public void connected(@NotNull final Connection connection) {
+    System.out.println("server connected");
+  }
 
-    override fun disconnecting(connection: Connection, reason: String, cause: Throwable?) {
-        println("server disconnecting")
-    }
+  @Override
+  public void disconnecting(@NotNull final Connection connection, @NotNull final String reason, @Nullable final Throwable cause) {
+    System.out.println("server disconnecting");
+  }
 
-    override fun disconnected(connection: Connection, reason: String, cause: Throwable?) {
-        println("server disconnected")
-    }
+  @Override
+  public void disconnected(@NotNull final Connection connection, @NotNull final String reason, @Nullable final Throwable cause) {
+    System.out.println("server disconnected");
+  }
 }

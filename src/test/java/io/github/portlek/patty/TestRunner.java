@@ -22,33 +22,37 @@
  * SOFTWARE.
  *
  */
-package io.github.portlek.patty
+package io.github.portlek.patty;
 
-import java.security.NoSuchAlgorithmException
-import javax.crypto.KeyGenerator
+import java.security.NoSuchAlgorithmException;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 
-object TestRunner {
-    @JvmStatic
-    fun main(args: Array<String>) {
-        var key = try {
-            val gen = KeyGenerator.getInstance("AES")
-            gen.init(128)
-            gen.generateKey()
-        } catch (e: NoSuchAlgorithmException) {
-            System.err.println("AES algorithm not supported, exiting...")
-            return
-        }
-        Packets.registerAll()
-        PattyServer.tcp("127.0.0.1", 25565,
-                packetHeader = TestPacketHeader(),
-                packetSizer = TestPacketSizer(),
-                serverListener = TestServerListener(),
-                sessionListener = TestServerSessionListener())
-                .bind()
-        PattyClient.tcp("127.0.0.1", 25565,
-                packetHeader = TestPacketHeader(),
-                packetSizer = TestPacketSizer(),
-                sessionListener = TestClientSessionListener())
-                .connect()
+public final class TestRunner {
+
+  public static void main(final String[] args) {
+    final SecretKey key;
+    try {
+      final KeyGenerator gen = KeyGenerator.getInstance("AES");
+      gen.init(128);
+      key = gen.generateKey();
+    } catch (final NoSuchAlgorithmException e) {
+      System.err.println("AES algorithm not supported, exiting...");
+      return;
     }
+    Packets.registerAll();
+    PattyServer.tcp("127.0.0.1", 25565,
+      new TestPacketHeader(),
+      null,
+      new TestPacketSizer(),
+      new TestServerListener(),
+      new TestServerSessionListener())
+      .bind();
+    PattyClient.tcp("127.0.0.1", 25565,
+      new TestPacketHeader(),
+      null,
+      new TestPacketSizer(),
+      new TestClientSessionListener())
+      .connect();
+  }
 }
