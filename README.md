@@ -2,7 +2,7 @@
 [![rultor](https://www.rultor.com/b/yegor256/rultor)](https://www.rultor.com/p/portlek/patty)
 
 ![master](https://github.com/portlek/patty/workflows/build/badge.svg)
-![Maven Central](https://img.shields.io/maven-central/v/io.github.portlek/patty?label=version)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.portlek/patty?label=version)](https://repo1.maven.org/maven2/io/github/portlek/patty/)
 
 ## How to use
 
